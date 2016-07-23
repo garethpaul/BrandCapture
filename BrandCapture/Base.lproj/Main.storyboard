@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11129.15" systemVersion="16A239j" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11103.10"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pgK-gS-6Qz">
+                                <items>
+                                    <barButtonItem style="plain" systemItem="camera" id="umE-2C-dAM">
+                                        <connections>
+                                            <action selector="startCaptureButtonPressed:" destination="BYZ-38-t0r" id="yhS-ui-0UH"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="stop" id="JLn-wC-1xd">
+                                        <connections>
+                                            <action selector="stopCaptureButtonPressed:" destination="BYZ-38-t0r" id="jTh-YL-LY5"/>
+                                        </connections>
+                                    </barButtonItem>
+                                </items>
+                            </toolbar>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="RwI-Hu-qcm"/>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="0.99997437000274658" blue="0.99999129772186279" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="pgK-gS-6Qz" firstAttribute="top" secondItem="RwI-Hu-qcm" secondAttribute="bottom" id="4q9-7d-ppY"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="pgK-gS-6Qz" secondAttribute="bottom" id="9p6-XH-VaN"/>
+                            <constraint firstAttribute="trailing" secondItem="RwI-Hu-qcm" secondAttribute="trailing" id="HUZ-Ds-SGk"/>
+                            <constraint firstAttribute="trailing" secondItem="pgK-gS-6Qz" secondAttribute="trailing" id="MrD-KN-50J"/>
+                            <constraint firstItem="RwI-Hu-qcm" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="cpk-Uf-2Li"/>
+                            <constraint firstItem="pgK-gS-6Qz" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="nlT-A6-lgg"/>
+                            <constraint firstItem="RwI-Hu-qcm" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="-20" id="q8B-wU-N6a"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="imageView" destination="RwI-Hu-qcm" id="RXZ-6N-A2u"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+        </scene>
+    </scenes>
+</document>

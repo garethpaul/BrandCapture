@@ -1,0 +1,479 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 47;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		70E2D0E91F731A24E4949ADC /* libPods-BrandCapture.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D52E38EEBA1EC40D91758869 /* libPods-BrandCapture.a */; };
+		7FC077011D43B587005A49E2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 7FC077001D43B587005A49E2 /* main.m */; };
+		7FC077041D43B587005A49E2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 7FC077031D43B587005A49E2 /* AppDelegate.m */; };
+		7FC077071D43B587005A49E2 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7FC077061D43B587005A49E2 /* ViewController.m */; };
+		7FC0770A1D43B587005A49E2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7FC077081D43B587005A49E2 /* Main.storyboard */; };
+		7FC0770C1D43B587005A49E2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7FC0770B1D43B587005A49E2 /* Assets.xcassets */; };
+		7FC0770F1D43B587005A49E2 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7FC0770D1D43B587005A49E2 /* LaunchScreen.storyboard */; };
+		7FD309261D43B9700004F323 /* features.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FD309241D43B9700004F323 /* features.cpp */; };
+		7FD309281D43BF550004F323 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FD309271D43BF550004F323 /* main.cpp */; };
+		7FD3092B1D43C5D60004F323 /* clipper.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7FD3092A1D43C5D60004F323 /* clipper.jpg */; };
+		7FFE65001D43CA5000984939 /* screenshot.png in Resources */ = {isa = PBXBuildFile; fileRef = 7FFE64FF1D43CA5000984939 /* screenshot.png */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		7FC076FC1D43B587005A49E2 /* BrandCapture.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BrandCapture.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7FC077001D43B587005A49E2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		7FC077021D43B587005A49E2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		7FC077031D43B587005A49E2 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		7FC077051D43B587005A49E2 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		7FC077061D43B587005A49E2 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		7FC077091D43B587005A49E2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		7FC0770B1D43B587005A49E2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		7FC0770E1D43B587005A49E2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		7FC077101D43B587005A49E2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		7FD309241D43B9700004F323 /* features.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = features.cpp; sourceTree = "<group>"; };
+		7FD309251D43B9700004F323 /* features.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = features.hpp; sourceTree = "<group>"; };
+		7FD309271D43BF550004F323 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		7FD309291D43BFA50004F323 /* Brand-Capture-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Brand-Capture-Prefix.pch"; sourceTree = "<group>"; };
+		7FD3092A1D43C5D60004F323 /* clipper.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = clipper.jpg; sourceTree = "<group>"; };
+		7FFE64FF1D43CA5000984939 /* screenshot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = screenshot.png; sourceTree = "<group>"; };
+		974414546AB11752FBB2920C /* Pods-BrandCapture.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BrandCapture.debug.xcconfig"; path = "Pods/Target Support Files/Pods-BrandCapture/Pods-BrandCapture.debug.xcconfig"; sourceTree = "<group>"; };
+		D52E38EEBA1EC40D91758869 /* libPods-BrandCapture.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BrandCapture.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE2E61037DEFAA481885479C /* Pods-BrandCapture.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BrandCapture.release.xcconfig"; path = "Pods/Target Support Files/Pods-BrandCapture/Pods-BrandCapture.release.xcconfig"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		7FC076F91D43B587005A49E2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				70E2D0E91F731A24E4949ADC /* libPods-BrandCapture.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4084FD78DD80B78DC2151EB6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D52E38EEBA1EC40D91758869 /* libPods-BrandCapture.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		7FC076F31D43B587005A49E2 = {
+			isa = PBXGroup;
+			children = (
+				7FC076FE1D43B587005A49E2 /* BrandCapture */,
+				7FC076FD1D43B587005A49E2 /* Products */,
+				E1C898D5B7453FA5E99C96FB /* Pods */,
+				4084FD78DD80B78DC2151EB6 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		7FC076FD1D43B587005A49E2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7FC076FC1D43B587005A49E2 /* BrandCapture.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7FC076FE1D43B587005A49E2 /* BrandCapture */ = {
+			isa = PBXGroup;
+			children = (
+				7FC077021D43B587005A49E2 /* AppDelegate.h */,
+				7FC077031D43B587005A49E2 /* AppDelegate.m */,
+				7FC077051D43B587005A49E2 /* ViewController.h */,
+				7FC077061D43B587005A49E2 /* ViewController.m */,
+				7FC077081D43B587005A49E2 /* Main.storyboard */,
+				7FC0770B1D43B587005A49E2 /* Assets.xcassets */,
+				7FC0770D1D43B587005A49E2 /* LaunchScreen.storyboard */,
+				7FC077101D43B587005A49E2 /* Info.plist */,
+				7FC076FF1D43B587005A49E2 /* Supporting Files */,
+				7FD309241D43B9700004F323 /* features.cpp */,
+				7FD309251D43B9700004F323 /* features.hpp */,
+				7FD309271D43BF550004F323 /* main.cpp */,
+			);
+			path = BrandCapture;
+			sourceTree = "<group>";
+		};
+		7FC076FF1D43B587005A49E2 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				7FFE64FF1D43CA5000984939 /* screenshot.png */,
+				7FD3092A1D43C5D60004F323 /* clipper.jpg */,
+				7FC077001D43B587005A49E2 /* main.m */,
+				7FD309291D43BFA50004F323 /* Brand-Capture-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		E1C898D5B7453FA5E99C96FB /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				974414546AB11752FBB2920C /* Pods-BrandCapture.debug.xcconfig */,
+				DE2E61037DEFAA481885479C /* Pods-BrandCapture.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		7FC076FB1D43B587005A49E2 /* BrandCapture */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7FC077131D43B587005A49E2 /* Build configuration list for PBXNativeTarget "BrandCapture" */;
+			buildPhases = (
+				F313D21B7EE65089995FA982 /* [CP] Check Pods Manifest.lock */,
+				7FC076F81D43B587005A49E2 /* Sources */,
+				7FC076F91D43B587005A49E2 /* Frameworks */,
+				7FC076FA1D43B587005A49E2 /* Resources */,
+				C29BD981DA4BB9165124AE69 /* [CP] Embed Pods Frameworks */,
+				73F831A6EC64694D2AB902D7 /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BrandCapture;
+			productName = BrandCapture;
+			productReference = 7FC076FC1D43B587005A49E2 /* BrandCapture.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7FC076F41D43B587005A49E2 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0800;
+				ORGANIZATIONNAME = gpj;
+				TargetAttributes = {
+					7FC076FB1D43B587005A49E2 = {
+						CreatedOnToolsVersion = 8.0;
+						DevelopmentTeam = 53AF9EMAN4;
+						DevelopmentTeamName = "Gareth Jones";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 7FC076F71D43B587005A49E2 /* Build configuration list for PBXProject "BrandCapture" */;
+			compatibilityVersion = "Xcode 6.3";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 7FC076F31D43B587005A49E2;
+			productRefGroup = 7FC076FD1D43B587005A49E2 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7FC076FB1D43B587005A49E2 /* BrandCapture */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7FC076FA1D43B587005A49E2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7FC0770F1D43B587005A49E2 /* LaunchScreen.storyboard in Resources */,
+				7FFE65001D43CA5000984939 /* screenshot.png in Resources */,
+				7FD3092B1D43C5D60004F323 /* clipper.jpg in Resources */,
+				7FC0770C1D43B587005A49E2 /* Assets.xcassets in Resources */,
+				7FC0770A1D43B587005A49E2 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		73F831A6EC64694D2AB902D7 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-BrandCapture/Pods-BrandCapture-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C29BD981DA4BB9165124AE69 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-BrandCapture/Pods-BrandCapture-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F313D21B7EE65089995FA982 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7FC076F81D43B587005A49E2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7FD309261D43B9700004F323 /* features.cpp in Sources */,
+				7FC077071D43B587005A49E2 /* ViewController.m in Sources */,
+				7FC077041D43B587005A49E2 /* AppDelegate.m in Sources */,
+				7FD309281D43BF550004F323 /* main.cpp in Sources */,
+				7FC077011D43B587005A49E2 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		7FC077081D43B587005A49E2 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				7FC077091D43B587005A49E2 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		7FC0770D1D43B587005A49E2 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				7FC0770E1D43B587005A49E2 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		7FC077111D43B587005A49E2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_BITCODE = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "/Users/gareth/Developer/ios/BrandCapture/BrandCapture/BrandCapture/Brand-Capture-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		7FC077121D43B587005A49E2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_BITCODE = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "/Users/gareth/Developer/ios/BrandCapture/BrandCapture/BrandCapture/Brand-Capture-Prefix.pch";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		7FC077141D43B587005A49E2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 974414546AB11752FBB2920C /* Pods-BrandCapture.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_BITCODE = NO;
+				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
+				INFOPLIST_FILE = BrandCapture/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-l\"stdc++\"",
+					"-framework",
+					"\"AVFoundation\"",
+					"-framework",
+					"\"Accelerate\"",
+					"-framework",
+					"\"AssetsLibrary\"",
+					"-framework",
+					"\"CoreGraphics\"",
+					"-framework",
+					"\"CoreImage\"",
+					"-framework",
+					"\"CoreMedia\"",
+					"-framework",
+					"\"CoreVideo\"",
+					"-framework",
+					"\"Foundation\"",
+					"-framework",
+					"\"QuartzCore\"",
+					"-framework",
+					"\"UIKit\"",
+					"-framework",
+					"\"opencv2\"",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.gpj.BrandCapture;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		7FC077151D43B587005A49E2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = DE2E61037DEFAA481885479C /* Pods-BrandCapture.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ENABLE_BITCODE = NO;
+				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
+				INFOPLIST_FILE = BrandCapture/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-l\"stdc++\"",
+					"-framework",
+					"\"AVFoundation\"",
+					"-framework",
+					"\"Accelerate\"",
+					"-framework",
+					"\"AssetsLibrary\"",
+					"-framework",
+					"\"CoreGraphics\"",
+					"-framework",
+					"\"CoreImage\"",
+					"-framework",
+					"\"CoreMedia\"",
+					"-framework",
+					"\"CoreVideo\"",
+					"-framework",
+					"\"Foundation\"",
+					"-framework",
+					"\"QuartzCore\"",
+					"-framework",
+					"\"UIKit\"",
+					"-framework",
+					"\"opencv2\"",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.gpj.BrandCapture;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		7FC076F71D43B587005A49E2 /* Build configuration list for PBXProject "BrandCapture" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7FC077111D43B587005A49E2 /* Debug */,
+				7FC077121D43B587005A49E2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7FC077131D43B587005A49E2 /* Build configuration list for PBXNativeTarget "BrandCapture" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7FC077141D43B587005A49E2 /* Debug */,
+				7FC077151D43B587005A49E2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 7FC076F41D43B587005A49E2 /* Project object */;
+}
