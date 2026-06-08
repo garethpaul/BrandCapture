@@ -1,3 +1,8 @@
+# BrandCapture
+
+<!-- README-OVERVIEW-IMAGE -->
+![Project overview](docs/readme-overview.svg)
+
 ## BrandCapture
 
 An iOS App that automatically detects "brand" images.
