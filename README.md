@@ -1,5 +1,8 @@
 # BrandCapture
 
+<!-- README-OVERVIEW-IMAGE -->
+![Project overview](docs/readme-overview.svg)
+
 ## Overview
 
 `garethpaul/BrandCapture` is an Apple platform application or Swift sample. An iOS App that automatically recognizes brands from your camera, while recording video or static images.
@@ -79,4 +82,3 @@ Keep changes small and tied to the project that is already present in this repos
 Prior README summary:
 
 > BrandCapture <!-- README-OVERVIEW-IMAGE --> BrandCapture An iOS App that automatically detects "brand" images. Project Shape - Open the CocoaPods workspace: `BrandCapture.xcworkspace` - Main app target: `BrandCapture` - OpenCV dependency: `OpenCV 2.4.9` from `Podfile.lock`
-
