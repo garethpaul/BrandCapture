@@ -5,6 +5,7 @@
 {
     CvVideoCamera* videoCamera;
     BOOL isCapturing;
+    BOOL isDetectorReady;
     UIImage* capturedFrame;
 }
 

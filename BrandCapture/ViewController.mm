@@ -1,7 +1,13 @@
 #import "ViewController.h"
 #import "features.hpp"
 
+static NSString * const BrandCaptureReferenceImageName = @"clipper.jpg";
+static const int BrandCaptureDefaultFPS = 40;
+static const int BrandCaptureOverlayThickness = 12;
+
 @interface ViewController ()
+
+- (void)stopCaptureIfNeeded;
 
 @end
 
@@ -9,6 +15,7 @@
 
 @synthesize imageView;
 @synthesize startCaptureButton;
+@synthesize stopCaptureButton;
 @synthesize toolbar;
 @synthesize videoCamera;
 
@@ -25,19 +32,14 @@
     AVCaptureSessionPreset640x480;
     self.videoCamera.defaultAVCaptureVideoOrientation =
     AVCaptureVideoOrientationPortrait;
-    self.videoCamera.defaultFPS = 40;
+    self.videoCamera.defaultFPS = BrandCaptureDefaultFPS;
     
     self.videoCamera.grayscaleMode = NO;
     
-    isCapturing = YES;
-    
-    bool isSet = setup(@"clipper.jpg");
-    NSLog(@"setup done");
-    if(isSet){
-        NSLog(@"SET!");
-    } else{
-        NSLog(@"SET FAILED!");
-    }
+    isDetectorReady = setup(BrandCaptureReferenceImageName);
+    isCapturing = NO;
+    startCaptureButton.enabled = isDetectorReady;
+    stopCaptureButton.enabled = isDetectorReady;
 }
 
 - (NSUInteger)supportedInterfaceOrientations
@@ -48,25 +50,37 @@
 
 -(IBAction)startCaptureButtonPressed:(id)sender
 {
-    [videoCamera start];
+    if (isCapturing || !isDetectorReady || self.videoCamera == nil)
+    {
+        return;
+    }
+
+    [self.videoCamera start];
     isCapturing = YES;
-    
 }
 
 -(IBAction)stopCaptureButtonPressed:(id)sender
 {
-    [videoCamera stop];
-    isCapturing = NO;
+    [self stopCaptureIfNeeded];
 }
 
 - (void)processImage:(cv::Mat&)image
 {
+    if (!isDetectorReady)
+    {
+        return;
+    }
+
     cv::vector<cv::Point2f> corners = detect(image);
+    if (!hasValidCorners(corners))
+    {
+        return;
+    }
     
-    line(image, corners[0], corners[1], cv::Scalar( 0, 0, 0 ), 12, 8);
-    line(image, corners[1], corners[2], cv::Scalar( 0, 0, 0 ), 12, 8);
-    line(image, corners[2], corners[3], cv::Scalar( 0, 0, 0 ), 12, 8);
-    line(image, corners[3], corners[0], cv::Scalar( 0, 0, 0 ), 12, 8);
+    cv::line(image, corners[0], corners[1], cv::Scalar( 0, 0, 0 ), BrandCaptureOverlayThickness, 8);
+    cv::line(image, corners[1], corners[2], cv::Scalar( 0, 0, 0 ), BrandCaptureOverlayThickness, 8);
+    cv::line(image, corners[2], corners[3], cv::Scalar( 0, 0, 0 ), BrandCaptureOverlayThickness, 8);
+    cv::line(image, corners[3], corners[0], cv::Scalar( 0, 0, 0 ), BrandCaptureOverlayThickness, 8);
 }
 
 - (void)didReceiveMemoryWarning
@@ -78,15 +92,22 @@
 - (void)viewDidDisappear:(BOOL)animated
 {
     [super viewDidDisappear:animated];
-    if (isCapturing)
-    {
-        [videoCamera stop];
-    }
+    [self stopCaptureIfNeeded];
 }
 
 - (void)dealloc
 {
-    videoCamera.delegate = nil;
+    [self stopCaptureIfNeeded];
+    self.videoCamera.delegate = nil;
+}
+
+- (void)stopCaptureIfNeeded
+{
+    if (isCapturing && self.videoCamera != nil)
+    {
+        [self.videoCamera stop];
+        isCapturing = NO;
+    }
 }
 
 - (cv::Mat)cvMatFromUIImage:(UIImage *)image

@@ -9,9 +9,11 @@
 #ifndef features_hpp
 #define features_hpp
 
-#include <stdio.h>
+#import <Foundation/Foundation.h>
+#import <opencv2/core/core.hpp>
 
 bool setup(NSString* filename);
 cv::vector<cv::Point2f> detect(cv::Mat img_scene);
+bool hasValidCorners(const cv::vector<cv::Point2f>& corners);
 
 #endif /* features_hpp */
