@@ -47,3 +47,6 @@ location clear.
 - OpenCV migrations bundled with unrelated app behavior changes
 - Target image changes without rationale
 - Generated signing material, local paths, or private assets
+
+This list is a roadmap guardrail, not a permanent rule.
+Strong user demand and strong technical rationale can change it.
