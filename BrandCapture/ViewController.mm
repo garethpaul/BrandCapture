@@ -112,9 +112,18 @@ static const int BrandCaptureOverlayThickness = 12;
 
 - (cv::Mat)cvMatFromUIImage:(UIImage *)image
 {
+    if (image == nil || image.CGImage == nil)
+    {
+        return cv::Mat();
+    }
+
     CGColorSpaceRef colorSpace = CGImageGetColorSpace(image.CGImage);
-    CGFloat cols = image.size.width;
-    CGFloat rows = image.size.height;
+    int cols = static_cast<int>(image.size.width);
+    int rows = static_cast<int>(image.size.height);
+    if (colorSpace == NULL || cols <= 0 || rows <= 0)
+    {
+        return cv::Mat();
+    }
     
     cv::Mat cvMat(rows, cols, CV_8UC4); // 8 bits per component, 4 channels (color channels + alpha)
     
@@ -126,6 +135,10 @@ static const int BrandCaptureOverlayThickness = 12;
                                                     colorSpace,                 // Colorspace
                                                     kCGImageAlphaNoneSkipLast |
                                                     kCGBitmapByteOrderDefault); // Bitmap info flags
+    if (contextRef == NULL)
+    {
+        return cv::Mat();
+    }
     
     CGContextDrawImage(contextRef, CGRectMake(0, 0, cols, rows), image.CGImage);
     CGContextRelease(contextRef);
@@ -137,9 +150,18 @@ static const int BrandCaptureOverlayThickness = 12;
 
 - (cv::Mat)cvMatGrayFromUIImage:(UIImage *)image
 {
+    if (image == nil || image.CGImage == nil)
+    {
+        return cv::Mat();
+    }
+
     CGColorSpaceRef colorSpace = CGImageGetColorSpace(image.CGImage);
-    CGFloat cols = image.size.width;
-    CGFloat rows = image.size.height;
+    int cols = static_cast<int>(image.size.width);
+    int rows = static_cast<int>(image.size.height);
+    if (colorSpace == NULL || cols <= 0 || rows <= 0)
+    {
+        return cv::Mat();
+    }
     
     cv::Mat cvMat(rows, cols, CV_8UC1); // 8 bits per component, 1 channels
     
@@ -151,6 +173,10 @@ static const int BrandCaptureOverlayThickness = 12;
                                                     colorSpace,                 // Colorspace
                                                     kCGImageAlphaNoneSkipLast |
                                                     kCGBitmapByteOrderDefault); // Bitmap info flags
+    if (contextRef == NULL)
+    {
+        return cv::Mat();
+    }
     
     CGContextDrawImage(contextRef, CGRectMake(0, 0, cols, rows), image.CGImage);
     CGContextRelease(contextRef);
@@ -160,6 +186,11 @@ static const int BrandCaptureOverlayThickness = 12;
 
 -(UIImage *)UIImageFromCVMat:(cv::Mat)cvMat
 {
+    if (cvMat.empty() || cvMat.data == NULL || cvMat.cols <= 0 || cvMat.rows <= 0)
+    {
+        return nil;
+    }
+
     NSData *data = [NSData dataWithBytes:cvMat.data length:cvMat.elemSize()*cvMat.total()];
     CGColorSpaceRef colorSpace;
     
@@ -168,8 +199,17 @@ static const int BrandCaptureOverlayThickness = 12;
     } else {
         colorSpace = CGColorSpaceCreateDeviceRGB();
     }
+    if (colorSpace == NULL)
+    {
+        return nil;
+    }
     
     CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef)data);
+    if (provider == NULL)
+    {
+        CGColorSpaceRelease(colorSpace);
+        return nil;
+    }
     
     // Creating CGImage from cv::Mat
     CGImageRef imageRef = CGImageCreate(cvMat.cols,                                 //width
@@ -184,6 +224,12 @@ static const int BrandCaptureOverlayThickness = 12;
                                         false,                                      //should interpolate
                                         kCGRenderingIntentDefault                   //intent
                                         );
+    if (imageRef == NULL)
+    {
+        CGDataProviderRelease(provider);
+        CGColorSpaceRelease(colorSpace);
+        return nil;
+    }
     
     
     // Getting UIImage from CGImage

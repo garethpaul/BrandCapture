@@ -191,6 +191,29 @@ if grep -Fq "NSLog(@" "$VIEW_CONTROLLER"; then
   exit 1
 fi
 
+image_guard_count=$(grep -F "if (image == nil || image.CGImage == nil)" "$VIEW_CONTROLLER" | wc -l | tr -d ' ')
+if [ "$image_guard_count" -lt 2 ]; then
+  printf '%s\n' "UIImage conversion helpers must guard nil images and missing CGImage state." >&2
+  exit 1
+fi
+
+context_guard_count=$(grep -F "if (contextRef == NULL)" "$VIEW_CONTROLLER" | wc -l | tr -d ' ')
+if [ "$context_guard_count" -lt 2 ]; then
+  printf '%s\n' "UIImage conversion helpers must guard failed bitmap contexts." >&2
+  exit 1
+fi
+
+if ! grep -Fq "if (cvMat.empty() || cvMat.data == NULL" "$VIEW_CONTROLLER"; then
+  printf '%s\n' "CVMat to UIImage conversion must guard empty Mat data." >&2
+  exit 1
+fi
+
+if ! grep -Fq "if (provider == NULL)" "$VIEW_CONTROLLER" ||
+  ! grep -Fq "if (imageRef == NULL)" "$VIEW_CONTROLLER"; then
+  printf '%s\n' "CVMat to UIImage conversion must guard failed Core Graphics objects." >&2
+  exit 1
+fi
+
 if ! grep -Fq "NSCameraUsageDescription" "$INFO_PLIST"; then
   printf '%s\n' "Camera permission usage description must be present." >&2
   exit 1
