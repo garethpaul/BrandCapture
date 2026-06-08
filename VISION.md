@@ -41,7 +41,7 @@ analytics without explicit documentation and user control.
 Future brand-recognition changes should make target images and processing
 location clear.
 
-## What We Will Not Merge For Now
+## What We Will Not Merge (For Now)
 
 - Camera data upload behavior
 - OpenCV migrations bundled with unrelated app behavior changes
