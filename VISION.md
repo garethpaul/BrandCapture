@@ -35,6 +35,11 @@ Contribution rules:
 
 ## Security And Privacy
 
+Canonical security policy and reporting:
+
+- [`SECURITY.md`](SECURITY.md)
+
+
 Camera input is sensitive. Do not upload frames, store captured images, or add
 analytics without explicit documentation and user control.
 
