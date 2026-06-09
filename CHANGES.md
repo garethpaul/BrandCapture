@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Corrected grayscale UIImage conversion to use an explicit device-gray color
+  space with matching one-channel bitmap info and release handling.
 - Wired the storyboard Start, Stop, and toolbar outlets to `ViewController` so
   the existing capture-control state synchronization reaches the UI controls.
 - Extended the SDK-free baseline and README notes to guard capture-control

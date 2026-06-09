@@ -34,6 +34,7 @@ for path in \
   "README.md" \
   "docs/plans/2026-06-08-brandcapture-camera-opencv-baseline.md" \
   "docs/plans/2026-06-09-brandcapture-storyboard-capture-outlets.md" \
+  "docs/plans/2026-06-09-brandcapture-gray-conversion-colorspace.md" \
   "BrandCapture.xcworkspace/contents.xcworkspacedata" \
   "BrandCapture.xcodeproj/project.pbxproj" \
   "BrandCapture/Base.lproj/Main.storyboard" \
@@ -241,6 +242,21 @@ if [ "$context_guard_count" -lt 2 ]; then
   exit 1
 fi
 
+if ! grep -Fq "CGColorSpaceCreateDeviceGray()" "$VIEW_CONTROLLER"; then
+  printf '%s\n' "Grayscale UIImage conversion must use an explicit device-gray color space." >&2
+  exit 1
+fi
+
+if ! grep -Fq "kCGImageAlphaNone);          // Bitmap info flags" "$VIEW_CONTROLLER"; then
+  printf '%s\n' "Grayscale UIImage conversion must use one-channel bitmap info." >&2
+  exit 1
+fi
+
+if ! grep -Fq "CGColorSpaceRelease(colorSpace);" "$VIEW_CONTROLLER"; then
+  printf '%s\n' "Image conversion helpers must release created Core Graphics color spaces." >&2
+  exit 1
+fi
+
 if ! grep -Fq "if (cvMat.empty() || cvMat.data == NULL" "$VIEW_CONTROLLER"; then
   printf '%s\n' "CVMat to UIImage conversion must guard empty Mat data." >&2
   exit 1
@@ -327,6 +343,11 @@ if ! grep -Fq "storyboard outlets are wired" "$ROOT_DIR/README.md"; then
   exit 1
 fi
 
+if ! grep -Fq "grayscale conversion uses an explicit device-gray color space" "$ROOT_DIR/README.md"; then
+  printf '%s\n' "README must document grayscale image conversion ownership." >&2
+  exit 1
+fi
+
 if ! grep -Fq "Status: Completed" "$ROOT_DIR/docs/plans/2026-06-09-brandcapture-storyboard-capture-outlets.md"; then
   printf '%s\n' "Storyboard capture outlet plan must record completed status." >&2
   exit 1
@@ -334,6 +355,16 @@ fi
 
 if ! grep -Fq "make check" "$ROOT_DIR/docs/plans/2026-06-09-brandcapture-storyboard-capture-outlets.md"; then
   printf '%s\n' "Storyboard capture outlet plan must record make check verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "Status: Completed" "$ROOT_DIR/docs/plans/2026-06-09-brandcapture-gray-conversion-colorspace.md"; then
+  printf '%s\n' "Grayscale conversion colorspace plan must record completed status." >&2
+  exit 1
+fi
+
+if ! grep -Fq "make check" "$ROOT_DIR/docs/plans/2026-06-09-brandcapture-gray-conversion-colorspace.md"; then
+  printf '%s\n' "Grayscale conversion colorspace plan must record make check verification." >&2
   exit 1
 fi
 

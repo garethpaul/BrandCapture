@@ -83,6 +83,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   capture is active, and Stop remains disabled until capture is active.
 - The capture-control storyboard outlets are wired so the state-sync helper
   reaches the Start, Stop, and toolbar controls.
+- The grayscale conversion uses an explicit device-gray color space with
+  one-channel bitmap info before handing frames to OpenCV.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
 - See `CHANGES.md` for the maintenance history.

@@ -163,11 +163,15 @@ static const int BrandCaptureOverlayThickness = 12;
         return cv::Mat();
     }
 
-    CGColorSpaceRef colorSpace = CGImageGetColorSpace(image.CGImage);
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceGray();
     int cols = static_cast<int>(image.size.width);
     int rows = static_cast<int>(image.size.height);
     if (colorSpace == NULL || cols <= 0 || rows <= 0)
     {
+        if (colorSpace != NULL)
+        {
+            CGColorSpaceRelease(colorSpace);
+        }
         return cv::Mat();
     }
     
@@ -179,15 +183,16 @@ static const int BrandCaptureOverlayThickness = 12;
                                                     8,                          // Bits per component
                                                     cvMat.step[0],              // Bytes per row
                                                     colorSpace,                 // Colorspace
-                                                    kCGImageAlphaNoneSkipLast |
-                                                    kCGBitmapByteOrderDefault); // Bitmap info flags
+                                                    kCGImageAlphaNone);          // Bitmap info flags
     if (contextRef == NULL)
     {
+        CGColorSpaceRelease(colorSpace);
         return cv::Mat();
     }
     
     CGContextDrawImage(contextRef, CGRectMake(0, 0, cols, rows), image.CGImage);
     CGContextRelease(contextRef);
+    CGColorSpaceRelease(colorSpace);
     
     return cvMat;
 }
