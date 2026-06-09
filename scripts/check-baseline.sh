@@ -11,6 +11,7 @@ FEATURES_HEADER="$ROOT_DIR/BrandCapture/features.hpp"
 INFO_PLIST="$ROOT_DIR/BrandCapture/Info.plist"
 PODFILE="$ROOT_DIR/Podfile"
 POD_LOCK="$ROOT_DIR/Podfile.lock"
+SCENE_KEYPOINT_PLAN="$ROOT_DIR/docs/plans/2026-06-09-brandcapture-scene-keypoint-guard.md"
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
   printf '%s\n' "CHANGES.md must document repository maintenance." >&2
@@ -35,6 +36,7 @@ for path in \
   "docs/plans/2026-06-08-brandcapture-camera-opencv-baseline.md" \
   "docs/plans/2026-06-09-brandcapture-storyboard-capture-outlets.md" \
   "docs/plans/2026-06-09-brandcapture-gray-conversion-colorspace.md" \
+  "docs/plans/2026-06-09-brandcapture-scene-keypoint-guard.md" \
   "BrandCapture.xcworkspace/contents.xcworkspacedata" \
   "BrandCapture.xcodeproj/project.pbxproj" \
   "BrandCapture/Base.lproj/Main.storyboard" \
@@ -171,6 +173,11 @@ fi
 
 if ! grep -Fq "descriptors_object.empty() || descriptors_scene.empty()" "$FEATURES"; then
   printf '%s\n' "features.mm must guard empty descriptor sets before matching." >&2
+  exit 1
+fi
+
+if ! grep -Fq "if (keypoints_scene.empty())" "$FEATURES"; then
+  printf '%s\n' "features.mm must stop detection before descriptor extraction when no scene keypoints are found." >&2
   exit 1
 fi
 
@@ -348,6 +355,11 @@ if ! grep -Fq "grayscale conversion uses an explicit device-gray color space" "$
   exit 1
 fi
 
+if ! grep -Fq "skips descriptor extraction when no scene keypoints are" "$ROOT_DIR/README.md"; then
+  printf '%s\n' "README must document the empty scene-keypoint detection guard." >&2
+  exit 1
+fi
+
 if ! grep -Fq "Status: Completed" "$ROOT_DIR/docs/plans/2026-06-09-brandcapture-storyboard-capture-outlets.md"; then
   printf '%s\n' "Storyboard capture outlet plan must record completed status." >&2
   exit 1
@@ -365,6 +377,16 @@ fi
 
 if ! grep -Fq "make check" "$ROOT_DIR/docs/plans/2026-06-09-brandcapture-gray-conversion-colorspace.md"; then
   printf '%s\n' "Grayscale conversion colorspace plan must record make check verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "Status: Completed" "$SCENE_KEYPOINT_PLAN"; then
+  printf '%s\n' "Scene keypoint guard plan must record completed status." >&2
+  exit 1
+fi
+
+if ! grep -Fq "make check" "$SCENE_KEYPOINT_PLAN"; then
+  printf '%s\n' "Scene keypoint guard plan must record make check verification." >&2
   exit 1
 fi
 

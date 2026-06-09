@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Skipped scene descriptor extraction when SURF detects no scene keypoints so
+  empty frames return the existing no-corners result directly.
 - Corrected grayscale UIImage conversion to use an explicit device-gray color
   space with matching one-channel bitmap info and release handling.
 - Wired the storyboard Start, Stop, and toolbar outlets to `ViewController` so

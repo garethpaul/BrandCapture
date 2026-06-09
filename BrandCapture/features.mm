@@ -79,6 +79,10 @@ vector<Point2f> detect(Mat img_scene)
     keypoints_scene.clear();
     descriptors_scene.release();
     detector.detect( img_scene, keypoints_scene );
+    if (keypoints_scene.empty()) {
+        return emptyCorners();
+    }
+
     extractor.compute( img_scene, keypoints_scene, descriptors_scene );
     if (descriptors_object.empty() || descriptors_scene.empty()) {
         return emptyCorners();
