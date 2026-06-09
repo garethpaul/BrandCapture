@@ -15,7 +15,6 @@
 		7FC0770C1D43B587005A49E2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7FC0770B1D43B587005A49E2 /* Assets.xcassets */; };
 		7FC0770F1D43B587005A49E2 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7FC0770D1D43B587005A49E2 /* LaunchScreen.storyboard */; };
 		7FD309261D43B9700004F323 /* features.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7FD309241D43B9700004F323 /* features.mm */; };
-		7FD309281D43BF550004F323 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FD309271D43BF550004F323 /* main.cpp */; };
 		7FD3092B1D43C5D60004F323 /* clipper.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7FD3092A1D43C5D60004F323 /* clipper.jpg */; };
 		7FFE65001D43CA5000984939 /* screenshot.png in Resources */ = {isa = PBXBuildFile; fileRef = 7FFE64FF1D43CA5000984939 /* screenshot.png */; };
 /* End PBXBuildFile section */
@@ -248,7 +247,6 @@
 				7FD309261D43B9700004F323 /* features.mm in Sources */,
 				7FC077071D43B587005A49E2 /* ViewController.mm in Sources */,
 				7FC077041D43B587005A49E2 /* AppDelegate.m in Sources */,
-				7FD309281D43BF550004F323 /* main.cpp in Sources */,
 				7FC077011D43B587005A49E2 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

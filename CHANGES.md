@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Removed the desktop OpenCV `main.cpp` sample from the iOS target sources while
+  leaving it available in the project navigator for reference.
 - Switched UIImage/OpenCV conversion buffers to CGImage pixel dimensions instead
   of point-based `UIImage.size` values.
 - Guarded camera setup when the storyboard preview image outlet is unavailable,

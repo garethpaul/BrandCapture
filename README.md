@@ -89,6 +89,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   one-channel bitmap info before handing frames to OpenCV.
 - UIImage conversions use CGImage pixel dimensions instead of point-based image
   sizes when allocating OpenCV buffers.
+- The desktop OpenCV sample stays out of the iOS target sources while remaining
+  in the project navigator for historical review.
 - Feature detection skips descriptor extraction when no scene keypoints are
   detected, keeping empty camera frames on the same explicit no-corners path as
   failed matches.
@@ -105,6 +107,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   camera preview outlet guard.
 - See `docs/plans/2026-06-09-brandcapture-image-pixel-dimensions.md` for the
   image conversion pixel-dimension baseline.
+- See `docs/plans/2026-06-09-brandcapture-maincpp-target-prune.md` for the
+  desktop OpenCV sample target-prune baseline.
 - See `docs/plans/2026-06-08-brandcapture-check-wrapper.md` for the root
   verification wrapper baseline.
 

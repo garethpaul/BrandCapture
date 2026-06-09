@@ -15,6 +15,7 @@ SCENE_KEYPOINT_PLAN="$ROOT_DIR/docs/plans/2026-06-09-brandcapture-scene-keypoint
 CAMERA_PERMISSION_PLAN="$ROOT_DIR/docs/plans/2026-06-09-brandcapture-camera-permission-copy.md"
 PREVIEW_OUTLET_PLAN="$ROOT_DIR/docs/plans/2026-06-09-brandcapture-preview-outlet-guard.md"
 IMAGE_PIXEL_DIMENSION_PLAN="$ROOT_DIR/docs/plans/2026-06-09-brandcapture-image-pixel-dimensions.md"
+MAIN_CPP_TARGET_PLAN="$ROOT_DIR/docs/plans/2026-06-09-brandcapture-maincpp-target-prune.md"
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
   printf '%s\n' "CHANGES.md must document repository maintenance." >&2
@@ -43,6 +44,7 @@ for path in \
   "docs/plans/2026-06-09-brandcapture-camera-permission-copy.md" \
   "docs/plans/2026-06-09-brandcapture-preview-outlet-guard.md" \
   "docs/plans/2026-06-09-brandcapture-image-pixel-dimensions.md" \
+  "docs/plans/2026-06-09-brandcapture-maincpp-target-prune.md" \
   "BrandCapture.xcworkspace/contents.xcworkspacedata" \
   "BrandCapture.xcodeproj/project.pbxproj" \
   "BrandCapture/Base.lproj/Main.storyboard" \
@@ -74,6 +76,16 @@ fi
 
 if ! grep -Fq "features.mm" "$PROJECT"; then
   printf '%s\n' "Xcode project must reference features.mm." >&2
+  exit 1
+fi
+
+if grep -Fq "main.cpp in Sources" "$PROJECT"; then
+  printf '%s\n' "Desktop OpenCV sample main.cpp must not be compiled into the iOS target." >&2
+  exit 1
+fi
+
+if ! grep -Fq "main.cpp */ = {isa = PBXFileReference" "$PROJECT"; then
+  printf '%s\n' "Desktop OpenCV sample main.cpp should remain referenced for historical review." >&2
   exit 1
 fi
 
@@ -418,6 +430,11 @@ if ! grep -Fq "UIImage conversions use CGImage pixel dimensions" "$ROOT_DIR/READ
   exit 1
 fi
 
+if ! grep -Fq "desktop OpenCV sample stays out of the iOS target sources" "$ROOT_DIR/README.md"; then
+  printf '%s\n' "README must document the desktop main.cpp target exclusion." >&2
+  exit 1
+fi
+
 if ! grep -Fq "Status: Completed" "$ROOT_DIR/docs/plans/2026-06-09-brandcapture-storyboard-capture-outlets.md"; then
   printf '%s\n' "Storyboard capture outlet plan must record completed status." >&2
   exit 1
@@ -475,6 +492,16 @@ fi
 
 if ! grep -Fq "make check" "$IMAGE_PIXEL_DIMENSION_PLAN"; then
   printf '%s\n' "Image pixel dimension plan must record make check verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "Status: Completed" "$MAIN_CPP_TARGET_PLAN"; then
+  printf '%s\n' "main.cpp target prune plan must record completed status." >&2
+  exit 1
+fi
+
+if ! grep -Fq "make check" "$MAIN_CPP_TARGET_PLAN"; then
+  printf '%s\n' "main.cpp target prune plan must record make check verification." >&2
   exit 1
 fi
 
