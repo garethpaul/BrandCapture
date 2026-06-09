@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Switched UIImage/OpenCV conversion buffers to CGImage pixel dimensions instead
+  of point-based `UIImage.size` values.
 - Guarded camera setup when the storyboard preview image outlet is unavailable,
   leaving capture disabled instead of building a camera with a nil parent view.
 - Tightened camera permission copy to describe user-started, on-device target

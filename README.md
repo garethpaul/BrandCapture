@@ -87,6 +87,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   storyboard wiring leaves capture disabled.
 - The grayscale conversion uses an explicit device-gray color space with
   one-channel bitmap info before handing frames to OpenCV.
+- UIImage conversions use CGImage pixel dimensions instead of point-based image
+  sizes when allocating OpenCV buffers.
 - Feature detection skips descriptor extraction when no scene keypoints are
   detected, keeping empty camera frames on the same explicit no-corners path as
   failed matches.
@@ -101,6 +103,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   camera permission copy baseline.
 - See `docs/plans/2026-06-09-brandcapture-preview-outlet-guard.md` for the
   camera preview outlet guard.
+- See `docs/plans/2026-06-09-brandcapture-image-pixel-dimensions.md` for the
+  image conversion pixel-dimension baseline.
 - See `docs/plans/2026-06-08-brandcapture-check-wrapper.md` for the root
   verification wrapper baseline.
 

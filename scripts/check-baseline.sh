@@ -14,6 +14,7 @@ POD_LOCK="$ROOT_DIR/Podfile.lock"
 SCENE_KEYPOINT_PLAN="$ROOT_DIR/docs/plans/2026-06-09-brandcapture-scene-keypoint-guard.md"
 CAMERA_PERMISSION_PLAN="$ROOT_DIR/docs/plans/2026-06-09-brandcapture-camera-permission-copy.md"
 PREVIEW_OUTLET_PLAN="$ROOT_DIR/docs/plans/2026-06-09-brandcapture-preview-outlet-guard.md"
+IMAGE_PIXEL_DIMENSION_PLAN="$ROOT_DIR/docs/plans/2026-06-09-brandcapture-image-pixel-dimensions.md"
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
   printf '%s\n' "CHANGES.md must document repository maintenance." >&2
@@ -41,6 +42,7 @@ for path in \
   "docs/plans/2026-06-09-brandcapture-scene-keypoint-guard.md" \
   "docs/plans/2026-06-09-brandcapture-camera-permission-copy.md" \
   "docs/plans/2026-06-09-brandcapture-preview-outlet-guard.md" \
+  "docs/plans/2026-06-09-brandcapture-image-pixel-dimensions.md" \
   "BrandCapture.xcworkspace/contents.xcworkspacedata" \
   "BrandCapture.xcodeproj/project.pbxproj" \
   "BrandCapture/Base.lproj/Main.storyboard" \
@@ -283,6 +285,18 @@ if ! grep -Fq "CGColorSpaceRelease(colorSpace);" "$VIEW_CONTROLLER"; then
   exit 1
 fi
 
+if ! grep -Fq "CGImageGetWidth(image.CGImage)" "$VIEW_CONTROLLER" ||
+  ! grep -Fq "CGImageGetHeight(image.CGImage)" "$VIEW_CONTROLLER"; then
+  printf '%s\n' "UIImage conversion helpers must use CGImage pixel dimensions, not point dimensions." >&2
+  exit 1
+fi
+
+if grep -Fq "image.size.width" "$VIEW_CONTROLLER" ||
+  grep -Fq "image.size.height" "$VIEW_CONTROLLER"; then
+  printf '%s\n' "UIImage conversion helpers must not derive OpenCV buffer sizes from point-based UIImage.size." >&2
+  exit 1
+fi
+
 if ! grep -Fq "if (cvMat.empty() || cvMat.data == NULL" "$VIEW_CONTROLLER"; then
   printf '%s\n' "CVMat to UIImage conversion must guard empty Mat data." >&2
   exit 1
@@ -399,6 +413,11 @@ if ! grep -Fq "camera permission text describes user-started local target-image 
   exit 1
 fi
 
+if ! grep -Fq "UIImage conversions use CGImage pixel dimensions" "$ROOT_DIR/README.md"; then
+  printf '%s\n' "README must document pixel-dimension image conversion." >&2
+  exit 1
+fi
+
 if ! grep -Fq "Status: Completed" "$ROOT_DIR/docs/plans/2026-06-09-brandcapture-storyboard-capture-outlets.md"; then
   printf '%s\n' "Storyboard capture outlet plan must record completed status." >&2
   exit 1
@@ -446,6 +465,16 @@ fi
 
 if ! grep -Fq "make check" "$PREVIEW_OUTLET_PLAN"; then
   printf '%s\n' "Camera preview outlet guard plan must record make check verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "Status: Completed" "$IMAGE_PIXEL_DIMENSION_PLAN"; then
+  printf '%s\n' "Image pixel dimension plan must record completed status." >&2
+  exit 1
+fi
+
+if ! grep -Fq "make check" "$IMAGE_PIXEL_DIMENSION_PLAN"; then
+  printf '%s\n' "Image pixel dimension plan must record make check verification." >&2
   exit 1
 fi
 

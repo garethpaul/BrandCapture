@@ -1,9 +1,31 @@
 #import "ViewController.h"
 #import "features.hpp"
+#include <limits>
 
 static NSString * const BrandCaptureReferenceImageName = @"clipper.jpg";
 static const int BrandCaptureDefaultFPS = 40;
 static const int BrandCaptureOverlayThickness = 12;
+
+static BOOL BrandCaptureGetImagePixelSize(UIImage *image, int *cols, int *rows)
+{
+    if (image == nil || image.CGImage == nil || cols == NULL || rows == NULL)
+    {
+        return NO;
+    }
+
+    size_t pixelWidth = CGImageGetWidth(image.CGImage);
+    size_t pixelHeight = CGImageGetHeight(image.CGImage);
+    size_t maxOpenCVDimension = static_cast<size_t>(std::numeric_limits<int>::max());
+    if (pixelWidth == 0 || pixelHeight == 0 ||
+        pixelWidth > maxOpenCVDimension || pixelHeight > maxOpenCVDimension)
+    {
+        return NO;
+    }
+
+    *cols = static_cast<int>(pixelWidth);
+    *rows = static_cast<int>(pixelHeight);
+    return YES;
+}
 
 @interface ViewController ()
 
@@ -132,10 +154,15 @@ static const int BrandCaptureOverlayThickness = 12;
         return cv::Mat();
     }
 
+    int cols = 0;
+    int rows = 0;
+    if (!BrandCaptureGetImagePixelSize(image, &cols, &rows))
+    {
+        return cv::Mat();
+    }
+
     CGColorSpaceRef colorSpace = CGImageGetColorSpace(image.CGImage);
-    int cols = static_cast<int>(image.size.width);
-    int rows = static_cast<int>(image.size.height);
-    if (colorSpace == NULL || cols <= 0 || rows <= 0)
+    if (colorSpace == NULL)
     {
         return cv::Mat();
     }
@@ -170,15 +197,16 @@ static const int BrandCaptureOverlayThickness = 12;
         return cv::Mat();
     }
 
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceGray();
-    int cols = static_cast<int>(image.size.width);
-    int rows = static_cast<int>(image.size.height);
-    if (colorSpace == NULL || cols <= 0 || rows <= 0)
+    int cols = 0;
+    int rows = 0;
+    if (!BrandCaptureGetImagePixelSize(image, &cols, &rows))
     {
-        if (colorSpace != NULL)
-        {
-            CGColorSpaceRelease(colorSpace);
-        }
+        return cv::Mat();
+    }
+
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceGray();
+    if (colorSpace == NULL)
+    {
         return cv::Mat();
     }
     
