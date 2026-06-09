@@ -8,6 +8,7 @@ static const int BrandCaptureOverlayThickness = 12;
 @interface ViewController ()
 
 - (void)stopCaptureIfNeeded;
+- (void)updateCaptureControls;
 
 @end
 
@@ -38,8 +39,7 @@ static const int BrandCaptureOverlayThickness = 12;
     
     isDetectorReady = setup(BrandCaptureReferenceImageName);
     isCapturing = NO;
-    startCaptureButton.enabled = isDetectorReady;
-    stopCaptureButton.enabled = isDetectorReady;
+    [self updateCaptureControls];
 }
 
 - (NSUInteger)supportedInterfaceOrientations
@@ -57,6 +57,7 @@ static const int BrandCaptureOverlayThickness = 12;
 
     [self.videoCamera start];
     isCapturing = YES;
+    [self updateCaptureControls];
 }
 
 -(IBAction)stopCaptureButtonPressed:(id)sender
@@ -107,7 +108,14 @@ static const int BrandCaptureOverlayThickness = 12;
     {
         [self.videoCamera stop];
         isCapturing = NO;
+        [self updateCaptureControls];
     }
+}
+
+- (void)updateCaptureControls
+{
+    startCaptureButton.enabled = isDetectorReady && !isCapturing;
+    stopCaptureButton.enabled = isDetectorReady && isCapturing;
 }
 
 - (cv::Mat)cvMatFromUIImage:(UIImage *)image

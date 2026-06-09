@@ -2,6 +2,8 @@
 
 ## 2026-06-08
 
+- Centralized capture button state so Stop stays disabled until camera capture
+  is active.
 - Guarded UIImage/OpenCV Mat conversion helpers against nil image input and
   failed Core Graphics allocation.
 - Added a changelog for repository maintenance.

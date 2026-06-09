@@ -100,6 +100,26 @@ if ! grep -Fq "stopCaptureIfNeeded" "$VIEW_CONTROLLER"; then
   exit 1
 fi
 
+if ! grep -Fq "updateCaptureControls" "$VIEW_CONTROLLER"; then
+  printf '%s\n' "ViewController must centralize capture button state." >&2
+  exit 1
+fi
+
+if ! grep -Fq "startCaptureButton.enabled = isDetectorReady && !isCapturing;" "$VIEW_CONTROLLER"; then
+  printf '%s\n' "Start button must be disabled while capture is active." >&2
+  exit 1
+fi
+
+if ! grep -Fq "stopCaptureButton.enabled = isDetectorReady && isCapturing;" "$VIEW_CONTROLLER"; then
+  printf '%s\n' "Stop button must stay disabled until capture is active." >&2
+  exit 1
+fi
+
+if grep -Fq "stopCaptureButton.enabled = isDetectorReady;" "$VIEW_CONTROLLER"; then
+  printf '%s\n' "Stop button must not be enabled before capture starts." >&2
+  exit 1
+fi
+
 if ! grep -Fq "isCapturing && self.videoCamera != nil" "$VIEW_CONTROLLER"; then
   printf '%s\n' "ViewController must guard duplicate stops and missing camera state." >&2
   exit 1
@@ -276,6 +296,11 @@ fi
 
 if ! grep -Fq "CHANGES.md" "$ROOT_DIR/README.md"; then
   printf '%s\n' "README must point to CHANGES.md." >&2
+  exit 1
+fi
+
+if ! grep -Fq "Stop remains disabled until capture is active" "$ROOT_DIR/README.md"; then
+  printf '%s\n' "README must document capture control state." >&2
   exit 1
 fi
 
