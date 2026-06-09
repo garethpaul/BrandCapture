@@ -2,6 +2,8 @@
 
 ## 2026-06-08
 
+- Added `make check` as the root wrapper for the BrandCapture source baseline
+  and optional Xcode build.
 - Centralized capture button state so Stop stays disabled until camera capture
   is active.
 - Guarded UIImage/OpenCV Mat conversion helpers against nil image input and
