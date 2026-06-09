@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Guarded camera setup when the storyboard preview image outlet is unavailable,
+  leaving capture disabled instead of building a camera with a nil parent view.
 - Tightened camera permission copy to describe user-started, on-device target
   image detection and guarded unused microphone/location permission text.
 - Skipped scene descriptor extraction when SURF detects no scene keypoints so

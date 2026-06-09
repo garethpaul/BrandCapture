@@ -23,9 +23,17 @@ static const int BrandCaptureOverlayThickness = 12;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
+
+    isCapturing = NO;
+    if (self.imageView == nil)
+    {
+        isDetectorReady = NO;
+        [self updateCaptureControls];
+        return;
+    }
+
     self.videoCamera = [[CvVideoCamera alloc]
-                        initWithParentView:imageView];
+                        initWithParentView:self.imageView];
     self.videoCamera.delegate = self;
     self.videoCamera.defaultAVCaptureDevicePosition =
     AVCaptureDevicePositionBack;
@@ -38,7 +46,6 @@ static const int BrandCaptureOverlayThickness = 12;
     self.videoCamera.grayscaleMode = NO;
     
     isDetectorReady = setup(BrandCaptureReferenceImageName);
-    isCapturing = NO;
     [self updateCaptureControls];
 }
 

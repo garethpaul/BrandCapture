@@ -20,6 +20,7 @@ Priority:
 - Preserve the OpenCV 2.4.9 and CocoaPods workspace setup
 - Keep the camera-to-feature-detection flow easy to inspect
 - Keep storyboard controls wired to the capture-state code
+- Keep camera preview wiring validated before capture setup
 - Keep image conversion buffer formats explicit before OpenCV processing
 - Keep feature detection failure paths explicit before descriptor matching
 - Keep camera permission copy specific to user-started local processing

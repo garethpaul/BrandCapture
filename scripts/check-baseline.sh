@@ -13,6 +13,7 @@ PODFILE="$ROOT_DIR/Podfile"
 POD_LOCK="$ROOT_DIR/Podfile.lock"
 SCENE_KEYPOINT_PLAN="$ROOT_DIR/docs/plans/2026-06-09-brandcapture-scene-keypoint-guard.md"
 CAMERA_PERMISSION_PLAN="$ROOT_DIR/docs/plans/2026-06-09-brandcapture-camera-permission-copy.md"
+PREVIEW_OUTLET_PLAN="$ROOT_DIR/docs/plans/2026-06-09-brandcapture-preview-outlet-guard.md"
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
   printf '%s\n' "CHANGES.md must document repository maintenance." >&2
@@ -39,6 +40,7 @@ for path in \
   "docs/plans/2026-06-09-brandcapture-gray-conversion-colorspace.md" \
   "docs/plans/2026-06-09-brandcapture-scene-keypoint-guard.md" \
   "docs/plans/2026-06-09-brandcapture-camera-permission-copy.md" \
+  "docs/plans/2026-06-09-brandcapture-preview-outlet-guard.md" \
   "BrandCapture.xcworkspace/contents.xcworkspacedata" \
   "BrandCapture.xcodeproj/project.pbxproj" \
   "BrandCapture/Base.lproj/Main.storyboard" \
@@ -125,6 +127,21 @@ fi
 
 if ! grep -Fq 'outlet property="toolbar"' "$MAIN_STORYBOARD"; then
   printf '%s\n' "Storyboard must connect the toolbar outlet." >&2
+  exit 1
+fi
+
+if ! grep -Fq 'outlet property="imageView"' "$MAIN_STORYBOARD"; then
+  printf '%s\n' "Storyboard must connect the camera preview image view outlet." >&2
+  exit 1
+fi
+
+if ! grep -Fq "if (self.imageView == nil)" "$VIEW_CONTROLLER"; then
+  printf '%s\n' "ViewController must guard missing camera preview outlet before camera setup." >&2
+  exit 1
+fi
+
+if ! grep -Fq "initWithParentView:self.imageView" "$VIEW_CONTROLLER"; then
+  printf '%s\n' "ViewController must initialize CvVideoCamera from the guarded preview outlet." >&2
   exit 1
 fi
 
@@ -362,6 +379,11 @@ if ! grep -Fq "storyboard outlets are wired" "$ROOT_DIR/README.md"; then
   exit 1
 fi
 
+if ! grep -Fq "preview image outlet is validated before camera setup" "$ROOT_DIR/README.md"; then
+  printf '%s\n' "README must document the camera preview outlet guard." >&2
+  exit 1
+fi
+
 if ! grep -Fq "grayscale conversion uses an explicit device-gray color space" "$ROOT_DIR/README.md"; then
   printf '%s\n' "README must document grayscale image conversion ownership." >&2
   exit 1
@@ -414,6 +436,16 @@ fi
 
 if ! grep -Fq "make check" "$CAMERA_PERMISSION_PLAN"; then
   printf '%s\n' "Camera permission copy plan must record make check verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "Status: Completed" "$PREVIEW_OUTLET_PLAN"; then
+  printf '%s\n' "Camera preview outlet guard plan must record completed status." >&2
+  exit 1
+fi
+
+if ! grep -Fq "make check" "$PREVIEW_OUTLET_PLAN"; then
+  printf '%s\n' "Camera preview outlet guard plan must record make check verification." >&2
   exit 1
 fi
 
