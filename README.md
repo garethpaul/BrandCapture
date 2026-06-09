@@ -88,11 +88,15 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Feature detection skips descriptor extraction when no scene keypoints are
   detected, keeping empty camera frames on the same explicit no-corners path as
   failed matches.
+- The camera permission text describes user-started local target-image detection
+  and no microphone or location permission copy is declared.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
 - See `CHANGES.md` for the maintenance history.
 - See `docs/plans/2026-06-09-brandcapture-scene-keypoint-guard.md` for the
   empty scene-keypoint detection baseline.
+- See `docs/plans/2026-06-09-brandcapture-camera-permission-copy.md` for the
+  camera permission copy baseline.
 - See `docs/plans/2026-06-08-brandcapture-check-wrapper.md` for the root
   verification wrapper baseline.
 

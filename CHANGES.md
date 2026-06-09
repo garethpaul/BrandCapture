@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Tightened camera permission copy to describe user-started, on-device target
+  image detection and guarded unused microphone/location permission text.
 - Skipped scene descriptor extraction when SURF detects no scene keypoints so
   empty frames return the existing no-corners result directly.
 - Corrected grayscale UIImage conversion to use an explicit device-gray color

@@ -12,6 +12,7 @@ INFO_PLIST="$ROOT_DIR/BrandCapture/Info.plist"
 PODFILE="$ROOT_DIR/Podfile"
 POD_LOCK="$ROOT_DIR/Podfile.lock"
 SCENE_KEYPOINT_PLAN="$ROOT_DIR/docs/plans/2026-06-09-brandcapture-scene-keypoint-guard.md"
+CAMERA_PERMISSION_PLAN="$ROOT_DIR/docs/plans/2026-06-09-brandcapture-camera-permission-copy.md"
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
   printf '%s\n' "CHANGES.md must document repository maintenance." >&2
@@ -37,6 +38,7 @@ for path in \
   "docs/plans/2026-06-09-brandcapture-storyboard-capture-outlets.md" \
   "docs/plans/2026-06-09-brandcapture-gray-conversion-colorspace.md" \
   "docs/plans/2026-06-09-brandcapture-scene-keypoint-guard.md" \
+  "docs/plans/2026-06-09-brandcapture-camera-permission-copy.md" \
   "BrandCapture.xcworkspace/contents.xcworkspacedata" \
   "BrandCapture.xcodeproj/project.pbxproj" \
   "BrandCapture/Base.lproj/Main.storyboard" \
@@ -280,6 +282,16 @@ if ! grep -Fq "NSCameraUsageDescription" "$INFO_PLIST"; then
   exit 1
 fi
 
+if ! grep -Fq "BrandCapture uses the camera when you start capture to detect the bundled target image on device." "$INFO_PLIST"; then
+  printf '%s\n' "Camera permission text must describe user-started local target-image detection." >&2
+  exit 1
+fi
+
+if grep -Fq "NSMicrophoneUsageDescription" "$INFO_PLIST" || grep -Fq "NSLocationWhenInUseUsageDescription" "$INFO_PLIST"; then
+  printf '%s\n' "BrandCapture must not declare unused microphone or location permission text." >&2
+  exit 1
+fi
+
 if ! grep -Fq "pod 'OpenCV', '2.4.9'" "$PODFILE"; then
   printf '%s\n' "Podfile must keep the expected OpenCV pin." >&2
   exit 1
@@ -360,6 +372,11 @@ if ! grep -Fq "skips descriptor extraction when no scene keypoints are" "$ROOT_D
   exit 1
 fi
 
+if ! grep -Fq "camera permission text describes user-started local target-image detection" "$ROOT_DIR/README.md"; then
+  printf '%s\n' "README must document the camera permission copy baseline." >&2
+  exit 1
+fi
+
 if ! grep -Fq "Status: Completed" "$ROOT_DIR/docs/plans/2026-06-09-brandcapture-storyboard-capture-outlets.md"; then
   printf '%s\n' "Storyboard capture outlet plan must record completed status." >&2
   exit 1
@@ -387,6 +404,16 @@ fi
 
 if ! grep -Fq "make check" "$SCENE_KEYPOINT_PLAN"; then
   printf '%s\n' "Scene keypoint guard plan must record make check verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "Status: Completed" "$CAMERA_PERMISSION_PLAN"; then
+  printf '%s\n' "Camera permission copy plan must record completed status." >&2
+  exit 1
+fi
+
+if ! grep -Fq "make check" "$CAMERA_PERMISSION_PLAN"; then
+  printf '%s\n' "Camera permission copy plan must record make check verification." >&2
   exit 1
 fi
 
