@@ -5,6 +5,7 @@ ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 PROJECT="$ROOT_DIR/BrandCapture.xcodeproj/project.pbxproj"
 VIEW_HEADER="$ROOT_DIR/BrandCapture/ViewController.h"
 VIEW_CONTROLLER="$ROOT_DIR/BrandCapture/ViewController.mm"
+MAIN_STORYBOARD="$ROOT_DIR/BrandCapture/Base.lproj/Main.storyboard"
 FEATURES="$ROOT_DIR/BrandCapture/features.mm"
 FEATURES_HEADER="$ROOT_DIR/BrandCapture/features.hpp"
 INFO_PLIST="$ROOT_DIR/BrandCapture/Info.plist"
@@ -32,8 +33,10 @@ require_file() {
 for path in \
   "README.md" \
   "docs/plans/2026-06-08-brandcapture-camera-opencv-baseline.md" \
+  "docs/plans/2026-06-09-brandcapture-storyboard-capture-outlets.md" \
   "BrandCapture.xcworkspace/contents.xcworkspacedata" \
   "BrandCapture.xcodeproj/project.pbxproj" \
+  "BrandCapture/Base.lproj/Main.storyboard" \
   "BrandCapture/ViewController.h" \
   "BrandCapture/ViewController.mm" \
   "BrandCapture/features.mm" \
@@ -102,6 +105,21 @@ fi
 
 if ! grep -Fq "updateCaptureControls" "$VIEW_CONTROLLER"; then
   printf '%s\n' "ViewController must centralize capture button state." >&2
+  exit 1
+fi
+
+if ! grep -Fq 'outlet property="startCaptureButton"' "$MAIN_STORYBOARD"; then
+  printf '%s\n' "Storyboard must connect the Start capture button outlet." >&2
+  exit 1
+fi
+
+if ! grep -Fq 'outlet property="stopCaptureButton"' "$MAIN_STORYBOARD"; then
+  printf '%s\n' "Storyboard must connect the Stop capture button outlet." >&2
+  exit 1
+fi
+
+if ! grep -Fq 'outlet property="toolbar"' "$MAIN_STORYBOARD"; then
+  printf '%s\n' "Storyboard must connect the toolbar outlet." >&2
   exit 1
 fi
 
@@ -301,6 +319,21 @@ fi
 
 if ! grep -Fq "Stop remains disabled until capture is active" "$ROOT_DIR/README.md"; then
   printf '%s\n' "README must document capture control state." >&2
+  exit 1
+fi
+
+if ! grep -Fq "storyboard outlets are wired" "$ROOT_DIR/README.md"; then
+  printf '%s\n' "README must document capture control outlet wiring." >&2
+  exit 1
+fi
+
+if ! grep -Fq "Status: Completed" "$ROOT_DIR/docs/plans/2026-06-09-brandcapture-storyboard-capture-outlets.md"; then
+  printf '%s\n' "Storyboard capture outlet plan must record completed status." >&2
+  exit 1
+fi
+
+if ! grep -Fq "make check" "$ROOT_DIR/docs/plans/2026-06-09-brandcapture-storyboard-capture-outlets.md"; then
+  printf '%s\n' "Storyboard capture outlet plan must record make check verification." >&2
   exit 1
 fi
 

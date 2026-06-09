@@ -47,6 +47,9 @@
                     </view>
                     <connections>
                         <outlet property="imageView" destination="RwI-Hu-qcm" id="RXZ-6N-A2u"/>
+                        <outlet property="startCaptureButton" destination="umE-2C-dAM" id="bc-start-outlet"/>
+                        <outlet property="stopCaptureButton" destination="JLn-wC-1xd" id="bc-stop-outlet"/>
+                        <outlet property="toolbar" destination="pgK-gS-6Qz" id="bc-toolbar-outlet"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

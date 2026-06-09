@@ -19,6 +19,7 @@ Priority:
 
 - Preserve the OpenCV 2.4.9 and CocoaPods workspace setup
 - Keep the camera-to-feature-detection flow easy to inspect
+- Keep storyboard controls wired to the capture-state code
 - Maintain the target image and detection code relationship
 - Avoid changes that require unavailable Apple tooling without documenting them
 

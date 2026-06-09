@@ -1,5 +1,12 @@
 # BrandCapture Changes
 
+## 2026-06-09
+
+- Wired the storyboard Start, Stop, and toolbar outlets to `ViewController` so
+  the existing capture-control state synchronization reaches the UI controls.
+- Extended the SDK-free baseline and README notes to guard capture-control
+  storyboard wiring.
+
 ## 2026-06-08
 
 - Added `make check` as the root wrapper for the BrandCapture source baseline
