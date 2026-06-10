@@ -16,6 +16,8 @@ CAMERA_PERMISSION_PLAN="$ROOT_DIR/docs/plans/2026-06-09-brandcapture-camera-perm
 PREVIEW_OUTLET_PLAN="$ROOT_DIR/docs/plans/2026-06-09-brandcapture-preview-outlet-guard.md"
 IMAGE_PIXEL_DIMENSION_PLAN="$ROOT_DIR/docs/plans/2026-06-09-brandcapture-image-pixel-dimensions.md"
 MAIN_CPP_TARGET_PLAN="$ROOT_DIR/docs/plans/2026-06-09-brandcapture-maincpp-target-prune.md"
+CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
+CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-ci-baseline.md"
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
   printf '%s\n' "CHANGES.md must document repository maintenance." >&2
@@ -45,6 +47,8 @@ for path in \
   "docs/plans/2026-06-09-brandcapture-preview-outlet-guard.md" \
   "docs/plans/2026-06-09-brandcapture-image-pixel-dimensions.md" \
   "docs/plans/2026-06-09-brandcapture-maincpp-target-prune.md" \
+  "docs/plans/2026-06-10-ci-baseline.md" \
+  ".github/workflows/check.yml" \
   "BrandCapture.xcworkspace/contents.xcworkspacedata" \
   "BrandCapture.xcodeproj/project.pbxproj" \
   "BrandCapture/Base.lproj/Main.storyboard" \
@@ -395,6 +399,11 @@ if ! grep -Fq "CHANGES.md" "$ROOT_DIR/README.md"; then
   exit 1
 fi
 
+if ! grep -Fq "GitHub Actions" "$ROOT_DIR/README.md"; then
+  printf '%s\n' "README must document the GitHub Actions baseline." >&2
+  exit 1
+fi
+
 if ! grep -Fq "Stop remains disabled until capture is active" "$ROOT_DIR/README.md"; then
   printf '%s\n' "README must document capture control state." >&2
   exit 1
@@ -502,6 +511,27 @@ fi
 
 if ! grep -Fq "make check" "$MAIN_CPP_TARGET_PLAN"; then
   printf '%s\n' "main.cpp target prune plan must record make check verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10" "$CI_WORKFLOW" || \
+   ! grep -Fq "run: make check" "$CI_WORKFLOW"; then
+  printf '%s\n' "GitHub Actions check workflow must run the make check baseline." >&2
+  exit 1
+fi
+
+if ! grep -Fq "permissions:" "$CI_WORKFLOW" || ! grep -Fq "contents: read" "$CI_WORKFLOW"; then
+  printf '%s\n' "GitHub Actions check workflow must keep repository access read-only." >&2
+  exit 1
+fi
+
+if ! grep -Fq "workflow_dispatch:" "$CI_WORKFLOW" || ! grep -Fq "timeout-minutes: 5" "$CI_WORKFLOW"; then
+  printf '%s\n' "GitHub Actions check workflow must support bounded manual verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "Status: Completed" "$CI_PLAN" || ! grep -Fq "make check" "$CI_PLAN"; then
+  printf '%s\n' "BrandCapture CI baseline plan must record completed status and make check verification." >&2
   exit 1
 fi
 

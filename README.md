@@ -59,6 +59,11 @@ make check
 scripts/check-baseline.sh
 ```
 
+GitHub Actions runs `make check` through `.github/workflows/check.yml` on
+pushes, pull requests, and manual dispatches. The workflow uses a
+commit-pinned checkout action, read-only repository access, and a bounded
+runtime.
+
 The legacy baseline is Objective-C++ camera processing, OpenCV 2.4.9, CocoaPods 1.0.1 provenance, bundle identifier `com.gpj.BrandCapture`, and iOS deployment target 8.0.
 
 This host does not have `xcodebuild` or `pod`, so full build, simulator/device, and CocoaPods verification must happen on a macOS machine with the matching legacy toolchain.
@@ -111,6 +116,7 @@ When the required SDK or runtime is unavailable, use static checks and source re
   desktop OpenCV sample target-prune baseline.
 - See `docs/plans/2026-06-08-brandcapture-check-wrapper.md` for the root
   verification wrapper baseline.
+- See `docs/plans/2026-06-10-ci-baseline.md` for the GitHub Actions baseline.
 
 ## Contributing
 

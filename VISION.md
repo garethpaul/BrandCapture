@@ -26,6 +26,7 @@ Priority:
 - Keep feature detection failure paths explicit before descriptor matching
 - Keep desktop OpenCV research code out of the iOS app target
 - Keep camera permission copy specific to user-started local processing
+- Keep GitHub Actions running the static `make check` baseline before review
 - Maintain the target image and detection code relationship
 - Avoid changes that require unavailable Apple tooling without documenting them
 
@@ -41,6 +42,8 @@ Contribution rules:
 - One PR = one focused camera, OpenCV, build, or documentation change.
 - Run `pod install` and open the workspace for build verification.
 - Include device or simulator notes for camera behavior changes.
+- Keep `.github/workflows/check.yml` aligned with the static baseline until a
+  macOS build job is documented.
 - Preserve sample images and explain replacements.
 
 ## Security And Privacy
