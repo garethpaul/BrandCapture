@@ -86,6 +86,9 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - This looks like an Apple platform project or sample. Xcode, Swift, CocoaPods, and deployment target versions may need to match the original project era.
 - Capture controls mirror detector and camera state: Start is disabled while
   capture is active, and Stop remains disabled until capture is active.
+- Camera capture stops when the application resigns active, including app
+  switching, device locking, and interruption transitions that leave the view
+  onscreen.
 - The capture-control storyboard outlets are wired so the state-sync helper
   reaches the Start, Stop, and toolbar controls.
 - The preview image outlet is validated before camera setup so missing
@@ -101,6 +104,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   failed matches.
 - The camera permission text describes user-started local target-image detection
   and no microphone or location permission copy is declared.
+- Root Makefile checks and the optional Xcode build resolve paths from the
+  Makefile location, so `make -f` works outside the checkout directory.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
 - See `CHANGES.md` for the maintenance history.
@@ -117,6 +122,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - See `docs/plans/2026-06-08-brandcapture-check-wrapper.md` for the root
   verification wrapper baseline.
 - See `docs/plans/2026-06-10-ci-baseline.md` for the GitHub Actions baseline.
+- See `docs/plans/2026-06-10-brandcapture-camera-inactive-lifecycle.md` for the
+  application-inactive camera shutdown guard.
 
 ## Contributing
 

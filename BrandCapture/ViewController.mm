@@ -31,6 +31,7 @@ static BOOL BrandCaptureGetImagePixelSize(UIImage *image, int *cols, int *rows)
 
 - (void)stopCaptureIfNeeded;
 - (void)updateCaptureControls;
+- (void)applicationWillResignActive:(NSNotification *)notification;
 
 @end
 
@@ -47,6 +48,10 @@ static BOOL BrandCaptureGetImagePixelSize(UIImage *image, int *cols, int *rows)
     [super viewDidLoad];
 
     isCapturing = NO;
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(applicationWillResignActive:)
+                                                 name:UIApplicationWillResignActiveNotification
+                                               object:nil];
     if (self.imageView == nil)
     {
         isDetectorReady = NO;
@@ -127,8 +132,17 @@ static BOOL BrandCaptureGetImagePixelSize(UIImage *image, int *cols, int *rows)
 
 - (void)dealloc
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIApplicationWillResignActiveNotification
+                                                  object:nil];
     [self stopCaptureIfNeeded];
     self.videoCamera.delegate = nil;
+}
+
+- (void)applicationWillResignActive:(NSNotification *)notification
+{
+    (void)notification;
+    [self stopCaptureIfNeeded];
 }
 
 - (void)stopCaptureIfNeeded

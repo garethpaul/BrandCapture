@@ -1,15 +1,16 @@
 .PHONY: build check lint test verify
 
 XCODEBUILD ?= xcodebuild
+ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 lint:
-	scripts/check-baseline.sh
+	$(ROOT)scripts/check-baseline.sh
 
 test: lint
 
 build: lint
 	@if command -v "$(XCODEBUILD)" >/dev/null 2>&1; then \
-		"$(XCODEBUILD)" -workspace BrandCapture.xcworkspace -scheme BrandCapture -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO build; \
+		"$(XCODEBUILD)" -workspace "$(ROOT)BrandCapture.xcworkspace" -scheme BrandCapture -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO build; \
 	else \
 		echo "xcodebuild not found; static BrandCapture checks completed."; \
 	fi

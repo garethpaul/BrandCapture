@@ -21,6 +21,7 @@ Priority:
 - Keep the camera-to-feature-detection flow easy to inspect
 - Keep storyboard controls wired to the capture-state code
 - Keep camera preview wiring validated before capture setup
+- Keep camera capture scoped to an active foreground application lifecycle
 - Keep image conversion buffer formats explicit before OpenCV processing
 - Keep OpenCV image buffer dimensions tied to underlying CGImage pixels
 - Keep feature detection failure paths explicit before descriptor matching

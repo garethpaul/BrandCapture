@@ -2,6 +2,10 @@
 
 ## 2026-06-10
 
+- Stopped camera capture when the application resigns active and removed the
+  lifecycle observer during controller teardown.
+- Made baseline and Xcode workspace paths location-independent and pinned CI to
+  the stable Ubuntu 24.04 runner image.
 - Added a GitHub Actions check workflow that runs the existing `make check`
   baseline on pushes, pull requests, and manual dispatches.
 - Pinned the checkout action and limited the workflow token to read-only

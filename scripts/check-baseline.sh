@@ -18,6 +18,7 @@ IMAGE_PIXEL_DIMENSION_PLAN="$ROOT_DIR/docs/plans/2026-06-09-brandcapture-image-p
 MAIN_CPP_TARGET_PLAN="$ROOT_DIR/docs/plans/2026-06-09-brandcapture-maincpp-target-prune.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-ci-baseline.md"
+CAMERA_INACTIVE_PLAN="$ROOT_DIR/docs/plans/2026-06-10-brandcapture-camera-inactive-lifecycle.md"
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
   printf '%s\n' "CHANGES.md must document repository maintenance." >&2
@@ -48,6 +49,7 @@ for path in \
   "docs/plans/2026-06-09-brandcapture-image-pixel-dimensions.md" \
   "docs/plans/2026-06-09-brandcapture-maincpp-target-prune.md" \
   "docs/plans/2026-06-10-ci-baseline.md" \
+  "docs/plans/2026-06-10-brandcapture-camera-inactive-lifecycle.md" \
   ".github/workflows/check.yml" \
   "BrandCapture.xcworkspace/contents.xcworkspacedata" \
   "BrandCapture.xcodeproj/project.pbxproj" \
@@ -125,6 +127,36 @@ fi
 
 if ! grep -Fq "stopCaptureIfNeeded" "$VIEW_CONTROLLER"; then
   printf '%s\n' "ViewController must centralize stop handling." >&2
+  exit 1
+fi
+
+if ! grep -Fq "UIApplicationWillResignActiveNotification" "$VIEW_CONTROLLER"; then
+  printf '%s\n' "ViewController must stop camera capture when the application resigns active." >&2
+  exit 1
+fi
+
+if [ "$(grep -Fc "name:UIApplicationWillResignActiveNotification" "$VIEW_CONTROLLER")" -ne 2 ]; then
+  printf '%s\n' "ViewController must register and remove the same application-inactive notification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "selector:@selector(applicationWillResignActive:)" "$VIEW_CONTROLLER"; then
+  printf '%s\n' "ViewController must register an application-inactive capture callback." >&2
+  exit 1
+fi
+
+if ! grep -Fq -- "- (void)applicationWillResignActive:(NSNotification *)notification" "$VIEW_CONTROLLER"; then
+  printf '%s\n' "ViewController must isolate application-inactive handling in a lifecycle callback." >&2
+  exit 1
+fi
+
+if ! grep -A5 -F -- "- (void)applicationWillResignActive:(NSNotification *)notification" "$VIEW_CONTROLLER" | grep -Fq "[self stopCaptureIfNeeded];"; then
+  printf '%s\n' "Application-inactive handling must reuse centralized camera shutdown." >&2
+  exit 1
+fi
+
+if ! grep -Fq "removeObserver:self" "$VIEW_CONTROLLER"; then
+  printf '%s\n' "ViewController must remove its application lifecycle observer during teardown." >&2
   exit 1
 fi
 
@@ -444,6 +476,27 @@ if ! grep -Fq "desktop OpenCV sample stays out of the iOS target sources" "$ROOT
   exit 1
 fi
 
+if ! grep -Fq "Camera capture stops when the application resigns active" "$ROOT_DIR/README.md"; then
+  printf '%s\n' "README must document the inactive camera lifecycle guard." >&2
+  exit 1
+fi
+
+if [ ! -f "$ROOT_DIR/Makefile" ]; then
+  printf '%s\n' "Makefile must remain available as the root verification entry point." >&2
+  exit 1
+fi
+
+if ! grep -Fq 'ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))' "$ROOT_DIR/Makefile" || \
+   ! grep -Fq '$(ROOT)scripts/check-baseline.sh' "$ROOT_DIR/Makefile"; then
+  printf '%s\n' "Makefile must run the baseline relative to its own repository root." >&2
+  exit 1
+fi
+
+if ! grep -Fq '"$(ROOT)BrandCapture.xcworkspace"' "$ROOT_DIR/Makefile"; then
+  printf '%s\n' "Makefile must pass a repository-rooted workspace path to xcodebuild." >&2
+  exit 1
+fi
+
 if ! grep -Fq "Status: Completed" "$ROOT_DIR/docs/plans/2026-06-09-brandcapture-storyboard-capture-outlets.md"; then
   printf '%s\n' "Storyboard capture outlet plan must record completed status." >&2
   exit 1
@@ -530,8 +583,18 @@ if ! grep -Fq "workflow_dispatch:" "$CI_WORKFLOW" || ! grep -Fq "timeout-minutes
   exit 1
 fi
 
+if ! grep -Fq "runs-on: ubuntu-24.04" "$CI_WORKFLOW" || ! grep -Fq "cancel-in-progress: true" "$CI_WORKFLOW"; then
+  printf '%s\n' "GitHub Actions must use a stable runner and cancel superseded checks." >&2
+  exit 1
+fi
+
 if ! grep -Fq "Status: Completed" "$CI_PLAN" || ! grep -Fq "make check" "$CI_PLAN"; then
   printf '%s\n' "BrandCapture CI baseline plan must record completed status and make check verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "Status: Completed" "$CAMERA_INACTIVE_PLAN" || ! grep -Fq "make check" "$CAMERA_INACTIVE_PLAN"; then
+  printf '%s\n' "BrandCapture camera inactive plan must record completed status and make check verification." >&2
   exit 1
 fi
 
