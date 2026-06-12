@@ -36,7 +36,9 @@ the capture session instead of dropping only the affected frame.
 
 - `make check`
 - `sh -n scripts/check-baseline.sh`
-- Targeted baseline mutation checks
+- Targeted baseline mutation checks rejected missing or broadened exception
+  handlers, missing `try` boundaries, missing overlay edges, duplicate boundary
+  markers, and incomplete plan status.
 - `git diff --check`
 
 XcodeBuildMCP, Xcode, iOS Simulator, and camera hardware are unavailable in this
