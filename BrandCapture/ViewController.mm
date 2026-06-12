@@ -106,16 +106,23 @@ static BOOL BrandCaptureGetImagePixelSize(UIImage *image, int *cols, int *rows)
         return;
     }
 
-    cv::vector<cv::Point2f> corners = detect(image);
-    if (!hasValidCorners(corners))
+    try
+    {
+        cv::vector<cv::Point2f> corners = detect(image);
+        if (!hasValidCorners(corners))
+        {
+            return;
+        }
+
+        cv::line(image, corners[0], corners[1], cv::Scalar( 0, 0, 0 ), BrandCaptureOverlayThickness, 8);
+        cv::line(image, corners[1], corners[2], cv::Scalar( 0, 0, 0 ), BrandCaptureOverlayThickness, 8);
+        cv::line(image, corners[2], corners[3], cv::Scalar( 0, 0, 0 ), BrandCaptureOverlayThickness, 8);
+        cv::line(image, corners[3], corners[0], cv::Scalar( 0, 0, 0 ), BrandCaptureOverlayThickness, 8);
+    }
+    catch (const cv::Exception&)
     {
         return;
     }
-    
-    cv::line(image, corners[0], corners[1], cv::Scalar( 0, 0, 0 ), BrandCaptureOverlayThickness, 8);
-    cv::line(image, corners[1], corners[2], cv::Scalar( 0, 0, 0 ), BrandCaptureOverlayThickness, 8);
-    cv::line(image, corners[2], corners[3], cv::Scalar( 0, 0, 0 ), BrandCaptureOverlayThickness, 8);
-    cv::line(image, corners[3], corners[0], cv::Scalar( 0, 0, 0 ), BrandCaptureOverlayThickness, 8);
 }
 
 - (void)didReceiveMemoryWarning

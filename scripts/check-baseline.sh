@@ -19,6 +19,7 @@ MAIN_CPP_TARGET_PLAN="$ROOT_DIR/docs/plans/2026-06-09-brandcapture-maincpp-targe
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-ci-baseline.md"
 CAMERA_INACTIVE_PLAN="$ROOT_DIR/docs/plans/2026-06-10-brandcapture-camera-inactive-lifecycle.md"
+FRAME_EXCEPTION_PLAN="$ROOT_DIR/docs/plans/2026-06-12-brandcapture-frame-exception-containment.md"
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
   printf '%s\n' "CHANGES.md must document repository maintenance." >&2
@@ -50,6 +51,7 @@ for path in \
   "docs/plans/2026-06-09-brandcapture-maincpp-target-prune.md" \
   "docs/plans/2026-06-10-ci-baseline.md" \
   "docs/plans/2026-06-10-brandcapture-camera-inactive-lifecycle.md" \
+  "docs/plans/2026-06-12-brandcapture-frame-exception-containment.md" \
   ".github/workflows/check.yml" \
   "BrandCapture.xcworkspace/contents.xcworkspacedata" \
   "BrandCapture.xcodeproj/project.pbxproj" \
@@ -222,6 +224,35 @@ fi
 
 if ! grep -Fq "if (!hasValidCorners(corners))" "$VIEW_CONTROLLER"; then
   printf '%s\n' "ViewController must guard invalid detection corners." >&2
+  exit 1
+fi
+
+if ! grep -Fq "catch (const cv::Exception&)" "$VIEW_CONTROLLER"; then
+  printf '%s\n' "ViewController must contain OpenCV frame-processing exceptions." >&2
+  exit 1
+fi
+
+if grep -Fq "catch (...)" "$VIEW_CONTROLLER"; then
+  printf '%s\n' "ViewController must not hide non-OpenCV frame-processing failures." >&2
+  exit 1
+fi
+
+if ! grep -Fq "cv::line(image, corners[3], corners[0]" "$VIEW_CONTROLLER"; then
+  printf '%s\n' "ViewController must keep all four overlay edges inside frame processing." >&2
+  exit 1
+fi
+
+process_line=$(grep -Fn -- "- (void)processImage:(cv::Mat&)image" "$VIEW_CONTROLLER" | cut -d: -f1)
+try_line=$(grep -Fn "    try" "$VIEW_CONTROLLER" | cut -d: -f1)
+detect_line=$(grep -Fn "cv::vector<cv::Point2f> corners = detect(image);" "$VIEW_CONTROLLER" | cut -d: -f1)
+overlay_line=$(grep -Fn "cv::line(image, corners[3], corners[0]" "$VIEW_CONTROLLER" | cut -d: -f1)
+catch_line=$(grep -Fn "catch (const cv::Exception&)" "$VIEW_CONTROLLER" | cut -d: -f1)
+next_method_line=$(grep -Fn -- "- (void)didReceiveMemoryWarning" "$VIEW_CONTROLLER" | cut -d: -f1)
+
+if [ "$process_line" -ge "$try_line" ] || [ "$try_line" -ge "$detect_line" ] || \
+   [ "$detect_line" -ge "$overlay_line" ] || [ "$overlay_line" -ge "$catch_line" ] || \
+   [ "$catch_line" -ge "$next_method_line" ]; then
+  printf '%s\n' "OpenCV detection and overlay drawing must remain inside the processImage exception boundary." >&2
   exit 1
 fi
 
@@ -476,6 +507,11 @@ if ! grep -Fq "desktop OpenCV sample stays out of the iOS target sources" "$ROOT
   exit 1
 fi
 
+if ! grep -Fq "camera callback contains OpenCV frame-processing exceptions" "$ROOT_DIR/README.md"; then
+  printf '%s\n' "README must document camera frame exception containment." >&2
+  exit 1
+fi
+
 if ! grep -Fq "Camera capture stops when the application resigns active" "$ROOT_DIR/README.md"; then
   printf '%s\n' "README must document the inactive camera lifecycle guard." >&2
   exit 1
@@ -595,6 +631,11 @@ fi
 
 if ! grep -Fq "Status: Completed" "$CAMERA_INACTIVE_PLAN" || ! grep -Fq "make check" "$CAMERA_INACTIVE_PLAN"; then
   printf '%s\n' "BrandCapture camera inactive plan must record completed status and make check verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "Status: Completed" "$FRAME_EXCEPTION_PLAN" || ! grep -Fq "make check" "$FRAME_EXCEPTION_PLAN"; then
+  printf '%s\n' "BrandCapture frame exception plan must record completed status and make check verification." >&2
   exit 1
 fi
 

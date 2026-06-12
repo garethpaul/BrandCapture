@@ -99,6 +99,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   sizes when allocating OpenCV buffers.
 - The desktop OpenCV sample stays out of the iOS target sources while remaining
   in the project navigator for historical review.
+- The camera callback contains OpenCV frame-processing exceptions so an invalid
+  frame is dropped without unwinding through the video delegate.
 - Feature detection skips descriptor extraction when no scene keypoints are
   detected, keeping empty camera frames on the same explicit no-corners path as
   failed matches.

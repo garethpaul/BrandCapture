@@ -1,5 +1,12 @@
 # BrandCapture Changes
 
+## 2026-06-12
+
+- Contained OpenCV exceptions across camera-frame detection and overlay drawing
+  so one rejected frame no longer unwinds through the video delegate callback.
+- Extended the SDK-free baseline and maintenance notes for the fail-closed frame
+  processing boundary.
+
 ## 2026-06-10
 
 - Stopped camera capture when the application resigns active and removed the

@@ -25,6 +25,7 @@ Priority:
 - Keep image conversion buffer formats explicit before OpenCV processing
 - Keep OpenCV image buffer dimensions tied to underlying CGImage pixels
 - Keep feature detection failure paths explicit before descriptor matching
+- Keep OpenCV frame-processing failures contained at the camera callback
 - Keep desktop OpenCV research code out of the iOS app target
 - Keep camera permission copy specific to user-started local processing
 - Keep GitHub Actions running the static `make check` baseline before review
