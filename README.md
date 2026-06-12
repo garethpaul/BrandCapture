@@ -63,6 +63,7 @@ GitHub Actions runs `make check` through `.github/workflows/check.yml` on
 pushes, pull requests, and manual dispatches. The workflow uses a
 commit-pinned checkout action, read-only repository access, and a bounded
 runtime.
+The job does not persist checkout credentials after source retrieval.
 
 The legacy baseline is Objective-C++ camera processing, OpenCV 2.4.9, CocoaPods 1.0.1 provenance, bundle identifier `com.gpj.BrandCapture`, and iOS deployment target 8.0.
 

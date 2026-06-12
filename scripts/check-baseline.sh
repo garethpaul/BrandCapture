@@ -20,6 +20,7 @@ CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-ci-baseline.md"
 CAMERA_INACTIVE_PLAN="$ROOT_DIR/docs/plans/2026-06-10-brandcapture-camera-inactive-lifecycle.md"
 FRAME_EXCEPTION_PLAN="$ROOT_DIR/docs/plans/2026-06-12-brandcapture-frame-exception-containment.md"
+CHECKOUT_CREDENTIAL_PLAN="$ROOT_DIR/docs/plans/2026-06-12-checkout-credential-boundary.md"
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
   printf '%s\n' "CHANGES.md must document repository maintenance." >&2
@@ -52,6 +53,7 @@ for path in \
   "docs/plans/2026-06-10-ci-baseline.md" \
   "docs/plans/2026-06-10-brandcapture-camera-inactive-lifecycle.md" \
   "docs/plans/2026-06-12-brandcapture-frame-exception-containment.md" \
+  "docs/plans/2026-06-12-checkout-credential-boundary.md" \
   ".github/workflows/check.yml" \
   "BrandCapture.xcworkspace/contents.xcworkspacedata" \
   "BrandCapture.xcodeproj/project.pbxproj" \
@@ -623,6 +625,13 @@ if ! grep -Fq "uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10" 
   exit 1
 fi
 
+if [ "$(grep -Fc 'uses: actions/checkout@' "$CI_WORKFLOW")" -ne 1 ] || \
+   [ "$(grep -Fc 'persist-credentials: false' "$CI_WORKFLOW")" -ne 1 ] || \
+   grep -E '^[[:space:]]*(-[[:space:]]+)?uses:' "$CI_WORKFLOW" | grep -Ev '@[0-9a-f]{40}([[:space:]]+#.*)?$' >/dev/null; then
+  printf '%s\n' "The only checkout step must be immutable and must not persist credentials." >&2
+  exit 1
+fi
+
 if ! grep -Fq "permissions:" "$CI_WORKFLOW" || ! grep -Fq "contents: read" "$CI_WORKFLOW"; then
   printf '%s\n' "GitHub Actions check workflow must keep repository access read-only." >&2
   exit 1
@@ -635,6 +644,31 @@ fi
 
 if ! grep -Fq "runs-on: ubuntu-24.04" "$CI_WORKFLOW" || ! grep -Fq "cancel-in-progress: true" "$CI_WORKFLOW"; then
   printf '%s\n' "GitHub Actions must use a stable runner and cancel superseded checks." >&2
+  exit 1
+fi
+
+if [ "$(grep -Ec '^[[:space:]]*permissions:' "$CI_WORKFLOW")" -ne 1 ] || \
+   [ "$(grep -Ec '^[[:space:]]+contents:[[:space:]]*read[[:space:]]*$' "$CI_WORKFLOW")" -ne 1 ] || \
+   grep -Eq 'write-all|:[[:space:]]*write|continue-on-error:[[:space:]]*true|if:[[:space:]]*false' "$CI_WORKFLOW" || \
+   [ "$(grep -Ec '^[[:space:]]*(-[[:space:]]+)?run:' "$CI_WORKFLOW")" -ne 1 ]; then
+  printf '%s\n' "Check workflow must keep exact read-only permissions and one required command." >&2
+  exit 1
+fi
+
+if [ ! -f "$CHECKOUT_CREDENTIAL_PLAN" ] || \
+   ! grep -Fq "status: completed" "$CHECKOUT_CREDENTIAL_PLAN" || \
+   ! grep -Fq "make check" "$CHECKOUT_CREDENTIAL_PLAN" || \
+   ! grep -Fq "external working directory" "$CHECKOUT_CREDENTIAL_PLAN" || \
+   ! grep -Fq "hostile mutations rejected" "$CHECKOUT_CREDENTIAL_PLAN"; then
+  printf '%s\n' "Checkout credential plan must record completed local verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "does not persist checkout credentials" "$ROOT_DIR/README.md" || \
+   ! grep -Fq "non-persisted checkout token" "$ROOT_DIR/SECURITY.md" || \
+   ! grep -Fq "non-persisted checkout credentials" "$ROOT_DIR/VISION.md" || \
+   ! grep -Fq "checkout credential persistence" "$ROOT_DIR/CHANGES.md"; then
+  printf '%s\n' "Repository guidance must document the checkout credential boundary." >&2
   exit 1
 fi
 

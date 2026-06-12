@@ -2,6 +2,8 @@
 
 ## 2026-06-12
 
+- Disabled checkout credential persistence in the canonical static Check job
+  and added exact repository contracts for that boundary.
 - Contained OpenCV exceptions across camera-frame detection and overlay drawing
   so one rejected frame no longer unwinds through the video delegate callback.
 - Extended the SDK-free baseline and maintenance notes for the fail-closed frame
