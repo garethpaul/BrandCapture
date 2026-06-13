@@ -1,13 +1,13 @@
 ---
 title: BrandCapture Degenerate Corner Rejection
 type: reliability
-status: planned
+status: completed
 date: 2026-06-13
 ---
 
 # BrandCapture Degenerate Corner Rejection
 
-## Status: Planned
+## Status: Completed
 
 ## Problem Frame
 
@@ -59,3 +59,26 @@ as a line or point instead of following the existing no-corners path.
   inverted comparison, bypassed detector validation, stale plan status, and
   missing verification evidence must each fail the checker.
 - Record unavailable Xcode/OpenCV/camera execution truthfully.
+
+## Work Completed
+
+- Added a one-square-pixel minimum projected area while retaining the existing
+  four-corner and finite-coordinate validation.
+- Rejected transformed corners inside `detect()` before returning them, while
+  preserving the camera callback's existing validation before drawing.
+- Added exact threshold, shoelace calculation, comparison, source-order, caller,
+  documentation, and plan contracts to the SDK-free checker.
+- Updated maintenance documentation without changing dependencies, assets,
+  project metadata, camera lifecycle, feature matching, or overlay styling.
+
+## Verification Completed
+
+- `make lint`, `make test`, `make build`, `make check`, and `make verify` passed.
+- `sh -n scripts/check-baseline.sh` and `git diff --check` passed.
+- Five isolated hostile source mutations were rejected: missing validation, a
+  zero minimum, an inverted comparison, disabled shoelace accumulation, and a
+  bypassed detector guard.
+- Two isolated hostile plan mutations were rejected: stale completion status
+  and missing mutation-verification evidence.
+- The Make gates reported `xcodebuild not found`; no xcodebuild, OpenCV execution, simulator camera,
+  or physical-device validation is claimed.

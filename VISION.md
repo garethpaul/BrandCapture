@@ -27,6 +27,7 @@ Priority:
 - Keep feature detection failure paths explicit before descriptor matching
 - Keep atomic reference-detector setup fail-closed before camera matching
 - Keep the descriptor filter's inclusive descriptor-match threshold explicit
+- Keep non-degenerate projected geometry mandatory before overlay drawing
 - Keep OpenCV frame-processing failures contained at the camera callback
 - Keep desktop OpenCV research code out of the iOS app target
 - Keep camera permission copy specific to user-started local processing
