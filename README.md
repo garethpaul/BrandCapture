@@ -107,6 +107,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   failed matches.
 - Feature matching retains exact descriptor matches at the inclusive
   three-times-minimum distance boundary, including a zero-distance best match.
+- Feature matching rejects non-finite matcher distances before calculating the
+  minimum-distance threshold or collecting homography inputs.
 - Reference setup clears stale published detector state, stages reference image,
   keypoint, and descriptor state locally, and publishes it only after complete
   OpenCV validation succeeds.
@@ -136,6 +138,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   application-inactive camera shutdown guard.
 - See `docs/plans/2026-06-13-brandcapture-zero-distance-matches.md` for the
   exact descriptor-match threshold boundary.
+- See `docs/plans/2026-06-13-brandcapture-finite-match-distance.md` for the
+  fail-closed matcher-distance boundary.
 - See `docs/plans/2026-06-13-brandcapture-reference-setup.md` for atomic,
   fail-closed reference detector initialization.
 

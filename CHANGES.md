@@ -2,6 +2,8 @@
 
 ## 2026-06-13
 
+- Rejected non-finite descriptor-match distances before threshold calculation
+  and homography input collection.
 - Rejected finite but degenerate projected quadrilaterals before detector output
   or camera overlay drawing.
 - Cleared stale reference state and staged OpenCV setup locally before publishing

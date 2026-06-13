@@ -1,13 +1,13 @@
 ---
 title: BrandCapture Finite Match Distance Guard
 type: reliability
-status: planned
+status: completed
 date: 2026-06-13
 ---
 
 # BrandCapture Finite Match Distance Guard
 
-## Status: Planned
+## Status: Completed
 
 ## Problem Frame
 
@@ -60,3 +60,25 @@ comparison accepts those invalid matches for homography input.
   a continuing instead of fail-closed branch, reordered validation, stale plan
   status, and missing verification evidence must each fail the checker.
 - Record unavailable Xcode/OpenCV/camera execution truthfully.
+
+## Work Completed
+
+- Added a fail-closed finite check for each raw OpenCV match distance before
+  updating the minimum-distance accumulator.
+- Preserved the inclusive three-times-minimum threshold and eligibility of
+  finite zero-distance matches.
+- Added exact guard-count, fail-closed branch, and source-order contracts to the
+  SDK-free checker.
+- Updated maintenance documentation without changing dependencies, assets,
+  project metadata, camera lifecycle, homography behavior, or overlay styling.
+
+## Verification Completed
+
+- `make lint`, `make test`, `make build`, `make check`, and `make verify` passed.
+- External-working-directory `make check`, `sh -n scripts/check-baseline.sh`,
+  and `git diff --check` passed.
+- Six isolated hostile mutations were rejected: a missing finite check, an
+  inverted predicate, a continuing branch, validation after minimum-distance
+  calculation, stale plan status, and missing mutation-verification evidence.
+- The Make gates reported `xcodebuild not found`; no xcodebuild, OpenCV execution, simulator camera,
+  or physical-device validation is claimed.
