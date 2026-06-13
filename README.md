@@ -105,6 +105,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Feature detection skips descriptor extraction when no scene keypoints are
   detected, keeping empty camera frames on the same explicit no-corners path as
   failed matches.
+- Feature matching retains exact descriptor matches at the inclusive
+  three-times-minimum distance boundary, including a zero-distance best match.
 - The camera permission text describes user-started local target-image detection
   and no microphone or location permission copy is declared.
 - Root Makefile checks and the optional Xcode build resolve paths from the
@@ -127,6 +129,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - See `docs/plans/2026-06-10-ci-baseline.md` for the GitHub Actions baseline.
 - See `docs/plans/2026-06-10-brandcapture-camera-inactive-lifecycle.md` for the
   application-inactive camera shutdown guard.
+- See `docs/plans/2026-06-13-brandcapture-zero-distance-matches.md` for the
+  exact descriptor-match threshold boundary.
 
 ## Contributing
 

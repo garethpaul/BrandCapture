@@ -111,11 +111,11 @@ vector<Point2f> detect(Mat img_scene)
         if( dist < min_dist ) min_dist = dist;
     }
     
-    //-- Draw only "good" matches (i.e. whose distance is less than 3*min_dist )
+    //-- Draw only "good" matches (i.e. whose distance is at most 3*min_dist )
     std::vector< DMatch > good_matches;
     
     for( size_t i = 0; i < matches.size(); i++ )
-    { if( matches[i].distance < kGoodMatchDistanceMultiplier*min_dist )
+    { if( matches[i].distance <= kGoodMatchDistanceMultiplier*min_dist )
     { good_matches.push_back( matches[i]); }
     }
 
