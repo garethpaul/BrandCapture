@@ -2,6 +2,8 @@
 
 ## 2026-06-13
 
+- Rejected finite but degenerate projected quadrilaterals before detector output
+  or camera overlay drawing.
 - Cleared stale reference state and staged OpenCV setup locally before publishing
   a fully validated image, keypoint, and descriptor set.
 - Retained zero-distance descriptor matches at the inclusive
