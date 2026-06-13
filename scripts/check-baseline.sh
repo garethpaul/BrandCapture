@@ -20,6 +20,7 @@ CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-ci-baseline.md"
 CAMERA_INACTIVE_PLAN="$ROOT_DIR/docs/plans/2026-06-10-brandcapture-camera-inactive-lifecycle.md"
 FRAME_EXCEPTION_PLAN="$ROOT_DIR/docs/plans/2026-06-12-brandcapture-frame-exception-containment.md"
+ZERO_DISTANCE_PLAN="$ROOT_DIR/docs/plans/2026-06-13-brandcapture-zero-distance-matches.md"
 CHECKOUT_CREDENTIAL_PLAN="$ROOT_DIR/docs/plans/2026-06-12-checkout-credential-boundary.md"
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
@@ -53,6 +54,7 @@ for path in \
   "docs/plans/2026-06-10-ci-baseline.md" \
   "docs/plans/2026-06-10-brandcapture-camera-inactive-lifecycle.md" \
   "docs/plans/2026-06-12-brandcapture-frame-exception-containment.md" \
+  "docs/plans/2026-06-13-brandcapture-zero-distance-matches.md" \
   "docs/plans/2026-06-12-checkout-credential-boundary.md" \
   ".github/workflows/check.yml" \
   "BrandCapture.xcworkspace/contents.xcworkspacedata" \
@@ -312,6 +314,14 @@ if ! grep -Fq "matches.size() < kMinimumGoodMatches" "$FEATURES"; then
   exit 1
 fi
 
+inclusive_match_boundary='if( matches[i].distance <= kGoodMatchDistanceMultiplier*min_dist )'
+if [ "$(grep -Fc 'static const double kGoodMatchDistanceMultiplier = 3.0;' "$FEATURES")" -ne 1 ] || \
+   [ "$(grep -Fc "$inclusive_match_boundary" "$FEATURES")" -ne 1 ] || \
+   grep -Fq 'matches[i].distance < kGoodMatchDistanceMultiplier*min_dist' "$FEATURES"; then
+  printf '%s\n' "features.mm must retain descriptor matches at the inclusive three-times-minimum threshold." >&2
+  exit 1
+fi
+
 if ! grep -Fq "good_matches.size() < kMinimumGoodMatches" "$FEATURES"; then
   printf '%s\n' "features.mm must require enough matches before homography." >&2
   exit 1
@@ -335,6 +345,14 @@ fi
 
 if ! grep -Fq "std::isfinite" "$FEATURES"; then
   printf '%s\n' "features.mm must reject non-finite detected corners." >&2
+  exit 1
+fi
+
+if ! grep -Fq "exact descriptor matches" "$ROOT_DIR/README.md" || \
+   ! grep -Fq "inclusive descriptor-match threshold" "$ROOT_DIR/VISION.md" || \
+   ! grep -Fq "zero-distance descriptor matches" "$ROOT_DIR/CHANGES.md" || \
+   ! grep -Fq "R1. A descriptor whose distance equals the computed threshold" "$ZERO_DISTANCE_PLAN"; then
+  printf '%s\n' "Exact-match boundary documentation and plan contracts must remain checked in." >&2
   exit 1
 fi
 
