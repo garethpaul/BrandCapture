@@ -30,9 +30,17 @@ std::vector<KeyPoint> keypoints_object, keypoints_scene;
 SurfDescriptorExtractor extractor;
 Mat descriptors_object, descriptors_scene;
 
+static void clearObjectState()
+{
+    img_object.release();
+    keypoints_object.clear();
+    descriptors_object.release();
+}
 
 bool setup(NSString* filename)
 {
+    clearObjectState();
+
     if (filename == nil) {
         return false;
     }
@@ -43,25 +51,34 @@ bool setup(NSString* filename)
         return false;
     }
 
-    img_object = imread([path UTF8String], CV_LOAD_IMAGE_GRAYSCALE);
-    
-    if( !img_object.data) {
+    try {
+        Mat candidateObject = imread([path UTF8String], CV_LOAD_IMAGE_GRAYSCALE);
+        if (!candidateObject.data) {
+            return false;
+        }
+
+        //-- Step 1: Detect the keypoints using SURF Detector
+        std::vector<KeyPoint> candidateKeypoints;
+        detector.detect(candidateObject, candidateKeypoints);
+        if (candidateKeypoints.empty()) {
+            return false;
+        }
+
+        //-- Step 2: Calculate descriptors (feature vectors)
+        Mat candidateDescriptors;
+        extractor.compute(candidateObject, candidateKeypoints, candidateDescriptors);
+        if (candidateDescriptors.empty()) {
+            return false;
+        }
+
+        img_object = candidateObject;
+        keypoints_object = candidateKeypoints;
+        descriptors_object = candidateDescriptors;
+        return true;
+    } catch (const cv::Exception&) {
+        clearObjectState();
         return false;
     }
-    
-    
-    //-- Step 1: Detect the keypoints using SURF Detector
-    keypoints_object.clear();
-    descriptors_object.release();
-    detector.detect( img_object, keypoints_object );
-    if (keypoints_object.empty()) {
-        return false;
-    }
-    
-    //-- Step 2: Calculate descriptors (feature vectors)
-    extractor.compute( img_object, keypoints_object, descriptors_object );
-    
-    return !descriptors_object.empty();
     
 }
 

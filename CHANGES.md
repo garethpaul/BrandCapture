@@ -2,6 +2,8 @@
 
 ## 2026-06-13
 
+- Cleared stale reference state and staged OpenCV setup locally before publishing
+  a fully validated image, keypoint, and descriptor set.
 - Retained zero-distance descriptor matches at the inclusive
   three-times-minimum threshold so exact reference matches can proceed to
   homography validation.

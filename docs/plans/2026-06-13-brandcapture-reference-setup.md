@@ -1,13 +1,13 @@
 ---
 title: BrandCapture Atomic Reference Setup
 type: reliability
-status: planned
+status: completed
 date: 2026-06-13
 ---
 
 # BrandCapture Atomic Reference Setup
 
-## Status: Planned
+## Status: Completed
 
 ## Problem Frame
 
@@ -76,11 +76,15 @@ Approach:
 - Add isolated hostile mutations for stale-state retention, direct global
   mutation, missing validation, exception escape, and documentation drift.
 
-## Verification Plan
+## Verification
 
-- Run `make check` and `make verify` from the repository and absolute-path
-  `make check` from `/tmp`.
-- Run `sh -n scripts/check-baseline.sh` and `git diff --check`.
-- Require every isolated hostile mutation to fail the static gate.
-- Record `xcodebuild`, OpenCV execution, simulator camera, and physical-device
-  validation as unavailable rather than inferred.
+- `make check` and `make verify` passed the static camera/OpenCV baseline and
+  root wrappers.
+- Absolute-path `make check` passed from `/tmp`.
+- `sh -n scripts/check-baseline.sh` and `git diff --check` passed.
+- Ten isolated hostile mutations were rejected across clear-before-setup,
+  clear ordering, local image/keypoint/descriptor staging, descriptor
+  validation, publication ordering, exception type, descriptor cleanup, and
+  README evidence.
+- Tooling is unavailable; no xcodebuild, OpenCV execution, simulator camera, or
+  physical-device validation is claimed.

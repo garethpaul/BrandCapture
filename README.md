@@ -107,6 +107,9 @@ When the required SDK or runtime is unavailable, use static checks and source re
   failed matches.
 - Feature matching retains exact descriptor matches at the inclusive
   three-times-minimum distance boundary, including a zero-distance best match.
+- Reference setup clears stale published detector state, stages reference image,
+  keypoint, and descriptor state locally, and publishes it only after complete
+  OpenCV validation succeeds.
 - The camera permission text describes user-started local target-image detection
   and no microphone or location permission copy is declared.
 - Root Makefile checks and the optional Xcode build resolve paths from the
@@ -131,6 +134,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   application-inactive camera shutdown guard.
 - See `docs/plans/2026-06-13-brandcapture-zero-distance-matches.md` for the
   exact descriptor-match threshold boundary.
+- See `docs/plans/2026-06-13-brandcapture-reference-setup.md` for atomic,
+  fail-closed reference detector initialization.
 
 ## Contributing
 

@@ -25,6 +25,7 @@ Priority:
 - Keep image conversion buffer formats explicit before OpenCV processing
 - Keep OpenCV image buffer dimensions tied to underlying CGImage pixels
 - Keep feature detection failure paths explicit before descriptor matching
+- Keep atomic reference-detector setup fail-closed before camera matching
 - Keep the descriptor filter's inclusive descriptor-match threshold explicit
 - Keep OpenCV frame-processing failures contained at the camera callback
 - Keep desktop OpenCV research code out of the iOS app target
