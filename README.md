@@ -69,6 +69,11 @@ The legacy baseline is Objective-C++ camera processing, OpenCV 2.4.9, CocoaPods 
 
 This host does not have `xcodebuild` or `pod`, so full build, simulator/device, and CocoaPods verification must happen on a macOS machine with the matching legacy toolchain.
 
+Use [`DEVICE_VERIFICATION.md`](DEVICE_VERIFICATION.md) for the exact-commit
+BrandCapture matrix. It covers permission, reference setup, descriptor and
+geometry rejection, valid overlays, controls, orientation, lifecycle,
+sustained capture, privacy-safe evidence, and explicit unexecuted rows.
+
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
 ## Configuration and Secrets
@@ -143,6 +148,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   fail-closed matcher-distance boundary.
 - See `docs/plans/2026-06-13-brandcapture-reference-setup.md` for atomic,
   fail-closed reference detector initialization.
+- See `docs/plans/2026-06-14-brandcapture-device-verification-checklist.md`
+  for the camera/OpenCV device evidence matrix and runtime non-claims.
 
 ## Contributing
 

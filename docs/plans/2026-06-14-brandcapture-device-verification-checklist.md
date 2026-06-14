@@ -1,6 +1,6 @@
 # BrandCapture Device Verification Checklist
 
-Status: In Progress
+Status: Completed
 
 ## Problem
 
@@ -32,4 +32,9 @@ exact implementation commit.
 
 ## Verification
 
-- Pending implementation and bounded repository validation.
+- `sh -n scripts/check-baseline.sh` passed.
+- `scripts/check-baseline.sh` and `make check` passed from the repository and
+  from an external working directory.
+- Twelve hostile mutations of the checklist and completion contracts were
+  rejected by `scripts/check-baseline.sh`.
+- No Xcode build, iOS simulator, physical camera, OpenCV framework runtime, or live overlay scenario was executed; every runtime row remains `not run`.
