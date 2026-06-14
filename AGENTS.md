@@ -52,6 +52,7 @@
 - The capture-control storyboard outlets are wired so the state-sync helper reaches the Start, Stop, and toolbar controls.
 - The preview image outlet is validated before camera setup so missing storyboard wiring leaves capture disabled.
 - The grayscale conversion uses an explicit device-gray color space with one-channel bitmap info before handing frames to OpenCV.
+- BrandCapture rejects non-convex projected quadrilaterals before overlay drawing.
 - `Pods/` is vendored dependency code; do not hand-edit it unless intentionally updating dependencies.
 
 ## Agent workflow

@@ -29,6 +29,7 @@ Priority:
 - Keep the descriptor filter's inclusive descriptor-match threshold explicit
 - Require finite matcher distances before descriptor threshold calculation
 - Keep non-degenerate projected geometry mandatory before overlay drawing
+- BrandCapture rejects non-convex projected quadrilaterals before overlay drawing.
 - Keep OpenCV frame-processing failures contained at the camera callback
 - Keep desktop OpenCV research code out of the iOS app target
 - Keep camera permission copy specific to user-started local processing

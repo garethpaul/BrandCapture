@@ -24,6 +24,7 @@ ZERO_DISTANCE_PLAN="$ROOT_DIR/docs/plans/2026-06-13-brandcapture-zero-distance-m
 REFERENCE_SETUP_PLAN="$ROOT_DIR/docs/plans/2026-06-13-brandcapture-reference-setup.md"
 DEGENERATE_CORNERS_PLAN="$ROOT_DIR/docs/plans/2026-06-13-brandcapture-degenerate-corners.md"
 FINITE_MATCH_DISTANCE_PLAN="$ROOT_DIR/docs/plans/2026-06-13-brandcapture-finite-match-distance.md"
+CONVEX_CORNERS_PLAN="$ROOT_DIR/docs/plans/2026-06-14-brandcapture-convex-corners.md"
 CHECKOUT_CREDENTIAL_PLAN="$ROOT_DIR/docs/plans/2026-06-12-checkout-credential-boundary.md"
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
@@ -60,6 +61,7 @@ for path in \
   "docs/plans/2026-06-13-brandcapture-zero-distance-matches.md" \
   "docs/plans/2026-06-13-brandcapture-reference-setup.md" \
   "docs/plans/2026-06-13-brandcapture-degenerate-corners.md" \
+  "docs/plans/2026-06-14-brandcapture-convex-corners.md" \
   "docs/plans/2026-06-12-checkout-credential-boundary.md" \
   ".github/workflows/check.yml" \
   "BrandCapture.xcworkspace/contents.xcworkspacedata" \
@@ -288,6 +290,40 @@ if ! grep -Fq "static std::vector<Point2f> emptyCorners()" "$FEATURES"; then
   printf '%s\n' "features.mm must return explicit empty detections on failure." >&2
   exit 1
 fi
+
+if ! grep -Fq '#include "opencv2/imgproc/imgproc.hpp"' "$FEATURES" || \
+   ! grep -Fq "if (!cv::isContourConvex(corners))" "$FEATURES"; then
+  printf '%s\n' "Projected corners must use OpenCV convexity validation." >&2
+  exit 1
+fi
+if [ "$(grep -Fc "if (!std::isfinite(corners[i].x) || !std::isfinite(corners[i].y))" "$FEATURES")" -ne 1 ] || \
+   [ "$(grep -Fc "if (!cv::isContourConvex(corners))" "$FEATURES")" -ne 1 ] || \
+   [ "$(grep -Fc "double areaTwice = 0.0;" "$FEATURES")" -ne 1 ]; then
+  printf '%s\n' "Projected-corner validation markers must remain singular." >&2
+  exit 1
+fi
+finite_corner_line=$(grep -nF "if (!std::isfinite(corners[i].x) || !std::isfinite(corners[i].y))" "$FEATURES" | cut -d: -f1)
+convex_corner_line=$(grep -nF "if (!cv::isContourConvex(corners))" "$FEATURES" | cut -d: -f1)
+area_corner_line=$(grep -nF "double areaTwice = 0.0;" "$FEATURES" | cut -d: -f1)
+if [ -z "$finite_corner_line" ] || [ -z "$convex_corner_line" ] || \
+   [ -z "$area_corner_line" ] || [ "$finite_corner_line" -ge "$convex_corner_line" ] || \
+   [ "$convex_corner_line" -ge "$area_corner_line" ]; then
+  printf '%s\n' "Projected corners must be finite, convex, and non-degenerate in order." >&2
+  exit 1
+fi
+
+for convex_doc in AGENTS.md README.md SECURITY.md VISION.md CHANGES.md; do
+  if ! grep -Fq "BrandCapture rejects non-convex projected quadrilaterals before overlay drawing." "$ROOT_DIR/$convex_doc"; then
+    printf '%s\n' "$convex_doc must document projected-corner convexity." >&2
+    exit 1
+  fi
+done
+for convex_plan_contract in "Status: Completed" "make check" "hostile mutations"; do
+  if ! grep -Fq "$convex_plan_contract" "$CONVEX_CORNERS_PLAN"; then
+    printf '%s\n' "Convex-corner plan must record completed verification: $convex_plan_contract" >&2
+    exit 1
+  fi
+done
 
 setup_body=$(sed -n '/^bool setup(NSString\* filename)/,/^}/p' "$FEATURES")
 for setup_contract in \
