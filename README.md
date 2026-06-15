@@ -95,6 +95,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Camera capture stops when the application resigns active, including app
   switching, device locking, and interruption transitions that leave the view
   onscreen.
+- A stop request with a missing camera reference still clears active capture state
+  and refreshes the controls instead of leaving the UI stuck in capture mode.
 - The capture-control storyboard outlets are wired so the state-sync helper
   reaches the Start, Stop, and toolbar controls.
 - The preview image outlet is validated before camera setup so missing

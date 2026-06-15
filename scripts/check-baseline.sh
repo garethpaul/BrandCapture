@@ -28,6 +28,7 @@ CONVEX_CORNERS_PLAN="$ROOT_DIR/docs/plans/2026-06-14-brandcapture-convex-corners
 DEVICE_VERIFICATION_PLAN="$ROOT_DIR/docs/plans/2026-06-14-brandcapture-device-verification-checklist.md"
 CHECKOUT_CREDENTIAL_PLAN="$ROOT_DIR/docs/plans/2026-06-12-checkout-credential-boundary.md"
 MAKE_ROOT_PROTECTION_PLAN="$ROOT_DIR/docs/plans/2026-06-15-brandcapture-make-root-override-protection.md"
+STOP_STATE_PLAN="$ROOT_DIR/docs/plans/2026-06-15-brandcapture-stop-state-reconciliation.md"
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
   printf '%s\n' "CHANGES.md must document repository maintenance." >&2
@@ -66,6 +67,7 @@ for path in \
   "docs/plans/2026-06-14-brandcapture-convex-corners.md" \
   "docs/plans/2026-06-12-checkout-credential-boundary.md" \
   "docs/plans/2026-06-15-brandcapture-make-root-override-protection.md" \
+  "docs/plans/2026-06-15-brandcapture-stop-state-reconciliation.md" \
   ".github/workflows/check.yml" \
   "BrandCapture.xcworkspace/contents.xcworkspacedata" \
   "BrandCapture.xcodeproj/project.pbxproj" \
@@ -226,10 +228,64 @@ if grep -Fq "stopCaptureButton.enabled = isDetectorReady;" "$VIEW_CONTROLLER"; t
   exit 1
 fi
 
-if ! grep -Fq "isCapturing && self.videoCamera != nil" "$VIEW_CONTROLLER"; then
-  printf '%s\n' "ViewController must guard duplicate stops and missing camera state." >&2
+stop_capture_method=$(awk '
+  /^- \(void\)stopCaptureIfNeeded$/ { capture = 1 }
+  capture && /^- \(void\)updateCaptureControls$/ { exit }
+  capture { print }
+' "$VIEW_CONTROLLER")
+
+for stop_marker in \
+  "if (!isCapturing)" \
+  "return;" \
+  "if (self.videoCamera != nil)" \
+  "[self.videoCamera stop];" \
+  "isCapturing = NO;" \
+  "[self updateCaptureControls];"; do
+  if [ "$(printf '%s\n' "$stop_capture_method" | grep -Fc "$stop_marker")" -ne 1 ]; then
+    printf '%s\n' "ViewController stop state marker must be unique: $stop_marker" >&2
+    exit 1
+  fi
+done
+
+idle_guard_line=$(printf '%s\n' "$stop_capture_method" | grep -nF "if (!isCapturing)" | cut -d: -f1)
+idle_return_line=$(printf '%s\n' "$stop_capture_method" | grep -nF "return;" | cut -d: -f1)
+camera_guard_line=$(printf '%s\n' "$stop_capture_method" | grep -nF "if (self.videoCamera != nil)" | cut -d: -f1)
+camera_stop_line=$(printf '%s\n' "$stop_capture_method" | grep -nF "[self.videoCamera stop];" | cut -d: -f1)
+idle_state_line=$(printf '%s\n' "$stop_capture_method" | grep -nF "isCapturing = NO;" | cut -d: -f1)
+control_refresh_line=$(printf '%s\n' "$stop_capture_method" | grep -nF "[self updateCaptureControls];" | cut -d: -f1)
+idle_guard_close_line=$(printf '%s\n' "$stop_capture_method" | awk -v marker="$idle_return_line" 'NR > marker && /^[[:space:]]*}$/ { print NR; exit }')
+camera_guard_close_line=$(printf '%s\n' "$stop_capture_method" | awk -v marker="$camera_stop_line" 'NR > marker && /^[[:space:]]*}$/ { print NR; exit }')
+if [ "$idle_guard_line" -ge "$idle_return_line" ] || \
+  [ -z "$idle_guard_close_line" ] || \
+  [ "$idle_return_line" -ge "$idle_guard_close_line" ] || \
+  [ "$idle_guard_close_line" -ge "$camera_guard_line" ] || \
+  [ "$camera_guard_line" -ge "$camera_stop_line" ] || \
+  [ -z "$camera_guard_close_line" ] || \
+  [ "$camera_stop_line" -ge "$camera_guard_close_line" ] || \
+  [ "$camera_guard_close_line" -ge "$idle_state_line" ] || \
+  [ "$idle_state_line" -ge "$control_refresh_line" ]; then
+  printf '%s\n' "ViewController must stop an available camera before reconciling active capture state and controls." >&2
   exit 1
 fi
+
+if ! grep -Fq "missing camera reference still clears active capture state" "$ROOT_DIR/README.md" || \
+  ! grep -Fq "Reconcile active capture state even when camera ownership is already absent" "$ROOT_DIR/VISION.md" || \
+  ! grep -Fq "missing camera ownership cannot leave" "$ROOT_DIR/SECURITY.md" || \
+  ! grep -Fq "Reconciled active capture state when the camera reference is already unavailable" "$ROOT_DIR/CHANGES.md"; then
+  printf '%s\n' "Capture stop-state reconciliation guidance must remain checked in." >&2
+  exit 1
+fi
+
+for stop_plan_contract in \
+  "## Status: Completed" \
+  "make check" \
+  "hostile lifecycle mutations were rejected" \
+  "No Xcode build, iOS simulator, physical camera"; do
+  if ! grep -Fq "$stop_plan_contract" "$STOP_STATE_PLAN"; then
+    printf '%s\n' "Capture stop-state plan must record completed verification: $stop_plan_contract" >&2
+    exit 1
+  fi
+done
 
 if ! grep -Fq "if (!isDetectorReady)" "$VIEW_CONTROLLER"; then
   printf '%s\n' "ViewController must skip frame processing when setup fails." >&2

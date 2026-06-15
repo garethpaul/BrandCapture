@@ -1,5 +1,7 @@
 # BrandCapture Changes
 
+- Reconciled active capture state when the camera reference is already unavailable
+  so lifecycle shutdown cannot leave capture controls stuck active.
 - Protected the repository-derived Make root from command-line overrides so
   checker and Xcode workspace paths cannot be redirected outside the checkout.
 

@@ -1,6 +1,6 @@
 # BrandCapture Stop State Reconciliation
 
-## Status: Planned
+## Status: Completed
 
 ## Context
 
@@ -49,6 +49,22 @@ even when the camera object is already unavailable.
 - focused hostile lifecycle-ordering and completed-plan mutations
 - plist/workspace XML, exact-diff, artifact, credential-pattern, and whitespace
   audits
+
+## Verification Results
+
+- `sh -n scripts/check-baseline.sh` and repository and external-directory
+  `make check` passed the portable static gate; Linux truthfully skipped the
+  optional Xcode build because `xcodebuild` is unavailable.
+- Focused hostile lifecycle mutations were rejected across the idle guard,
+  optional camera stop, state-clear ordering, control refresh, maintained
+  guidance, plan status, and verification evidence.
+- Exact-path review confirmed that plist, workspace, storyboard, project, pod,
+  and workflow files were unchanged. Exact-diff, generated-artifact,
+  credential-pattern, conflict-marker, and whitespace audits passed.
+- Independent `plutil` and `xmllint` parsing was unavailable on this host; the
+  repository's existing static structure contracts passed.
+- No Xcode build, iOS simulator, physical camera, OpenCV runtime, or live
+  lifecycle transition was exercised in this Linux environment.
 
 ## Remaining Risks
 

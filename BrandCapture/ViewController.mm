@@ -154,12 +154,18 @@ static BOOL BrandCaptureGetImagePixelSize(UIImage *image, int *cols, int *rows)
 
 - (void)stopCaptureIfNeeded
 {
-    if (isCapturing && self.videoCamera != nil)
+    if (!isCapturing)
+    {
+        return;
+    }
+
+    if (self.videoCamera != nil)
     {
         [self.videoCamera stop];
-        isCapturing = NO;
-        [self updateCaptureControls];
     }
+
+    isCapturing = NO;
+    [self updateCaptureControls];
 }
 
 - (void)updateCaptureControls
