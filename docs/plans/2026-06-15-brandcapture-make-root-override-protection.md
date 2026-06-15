@@ -1,6 +1,6 @@
 # BrandCapture Make Root Override Protection
 
-## Status: Planned
+## Status: Completed
 
 ## Context
 
@@ -43,6 +43,17 @@ repository files regardless of caller-supplied variables.
 - hostile `ROOT=/tmp` dry-run path audit
 - hostile protected-root, documentation, and completed-plan mutations
 - plist/workspace XML, artifact, credential-pattern, and exact-diff audits
+
+## Verification Results
+
+- Focused shell and baseline validation passed.
+- The repository and external-directory `make check` passed; Linux truthfully
+  used the static-only path because `xcodebuild` is unavailable.
+- A hostile `ROOT=/tmp` dry run retained repository checker and workspace paths.
+- Three hostile BrandCapture Make root mutations were rejected across protected
+  assignment, maintained documentation, and completed-plan evidence.
+- Plist/workspace XML, artifact, credential-pattern, conflict-marker, and
+  exact-diff audits passed.
 
 ## Remaining Risks
 

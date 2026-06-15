@@ -34,6 +34,7 @@ Priority:
 - Keep desktop OpenCV research code out of the iOS app target
 - Keep camera permission copy specific to user-started local processing
 - Keep GitHub Actions running the static `make check` baseline before review
+- Keep Make verification rooted to the loaded repository Makefile
 - Keep non-persisted checkout credentials in hosted verification
 - Maintain the target image and detection code relationship
 - Avoid changes that require unavailable Apple tooling without documenting them
