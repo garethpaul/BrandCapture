@@ -8,6 +8,9 @@ VIEW_CONTROLLER="$ROOT_DIR/BrandCapture/ViewController.mm"
 MAIN_STORYBOARD="$ROOT_DIR/BrandCapture/Base.lproj/Main.storyboard"
 FEATURES="$ROOT_DIR/BrandCapture/features.mm"
 FEATURES_HEADER="$ROOT_DIR/BrandCapture/features.hpp"
+PROJECTED_CORNERS="$ROOT_DIR/BrandCapture/ProjectedCorners.hpp"
+PROJECTED_CORNERS_TEST="$ROOT_DIR/Tests/ProjectedCornersTests.cpp"
+PROJECTED_CORNERS_RUNNER="$ROOT_DIR/scripts/test-projected-corners.sh"
 INFO_PLIST="$ROOT_DIR/BrandCapture/Info.plist"
 PODFILE="$ROOT_DIR/Podfile"
 POD_LOCK="$ROOT_DIR/Podfile.lock"
@@ -29,6 +32,7 @@ DEVICE_VERIFICATION_PLAN="$ROOT_DIR/docs/plans/2026-06-14-brandcapture-device-ve
 CHECKOUT_CREDENTIAL_PLAN="$ROOT_DIR/docs/plans/2026-06-12-checkout-credential-boundary.md"
 MAKE_ROOT_PROTECTION_PLAN="$ROOT_DIR/docs/plans/2026-06-15-brandcapture-make-root-override-protection.md"
 STOP_STATE_PLAN="$ROOT_DIR/docs/plans/2026-06-15-brandcapture-stop-state-reconciliation.md"
+PROJECTED_CORNERS_PLAN="$ROOT_DIR/docs/plans/2026-06-16-brandcapture-projected-corner-tests.md"
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
   printf '%s\n' "CHANGES.md must document repository maintenance." >&2
@@ -68,6 +72,7 @@ for path in \
   "docs/plans/2026-06-12-checkout-credential-boundary.md" \
   "docs/plans/2026-06-15-brandcapture-make-root-override-protection.md" \
   "docs/plans/2026-06-15-brandcapture-stop-state-reconciliation.md" \
+  "docs/plans/2026-06-16-brandcapture-projected-corner-tests.md" \
   ".github/workflows/check.yml" \
   "BrandCapture.xcworkspace/contents.xcworkspacedata" \
   "BrandCapture.xcodeproj/project.pbxproj" \
@@ -76,6 +81,9 @@ for path in \
   "BrandCapture/ViewController.mm" \
   "BrandCapture/features.mm" \
   "BrandCapture/features.hpp" \
+  "BrandCapture/ProjectedCorners.hpp" \
+  "Tests/ProjectedCornersTests.cpp" \
+  "scripts/test-projected-corners.sh" \
   "BrandCapture/clipper.jpg" \
   "BrandCapture/Info.plist" \
   "Podfile" \
@@ -350,24 +358,65 @@ if ! grep -Fq "static std::vector<Point2f> emptyCorners()" "$FEATURES"; then
   exit 1
 fi
 
-if ! grep -Fq '#include "opencv2/imgproc/imgproc.hpp"' "$FEATURES" || \
-   ! grep -Fq "if (!cv::isContourConvex(corners))" "$FEATURES"; then
-  printf '%s\n' "Projected corners must use OpenCV convexity validation." >&2
+if ! grep -Fq '#include "ProjectedCorners.hpp"' "$FEATURES" || \
+   ! grep -Fq "std::vector<brandcapture::ProjectedPoint> projectedCorners;" "$FEATURES" || \
+   ! grep -Fq "brandcapture::ProjectedPoint(corners[i].x, corners[i].y)" "$FEATURES" || \
+   ! grep -Fq "return brandcapture::hasValidProjectedCorners(projectedCorners);" "$FEATURES"; then
+  printf '%s\n' "Objective-C++ corner validation must delegate to the portable production validator." >&2
   exit 1
 fi
-if [ "$(grep -Fc "if (!std::isfinite(corners[i].x) || !std::isfinite(corners[i].y))" "$FEATURES")" -ne 1 ] || \
-   [ "$(grep -Fc "if (!cv::isContourConvex(corners))" "$FEATURES")" -ne 1 ] || \
-   [ "$(grep -Fc "double areaTwice = 0.0;" "$FEATURES")" -ne 1 ]; then
-  printf '%s\n' "Projected-corner validation markers must remain singular." >&2
+
+for geometry_contract in \
+  "corners.size() != expectedCornerCount" \
+  "!std::isfinite(corners[i].x) || !std::isfinite(corners[i].y)" \
+  "!std::isfinite(currentTurn) || currentTurn == 0.0" \
+  "(currentTurn > 0.0) != (previousTurn > 0.0)" \
+  "!std::isfinite(areaTwice)" \
+  "std::fabs(areaTwice) >= minimumAreaTwice"; do
+  if ! grep -Fq "$geometry_contract" "$PROJECTED_CORNERS"; then
+    printf '%s\n' "Portable projected-corner contract is missing: $geometry_contract" >&2
+    exit 1
+  fi
+done
+if grep -Eq 'Foundation|UIKit|opencv' "$PROJECTED_CORNERS"; then
+  printf '%s\n' "Portable projected-corner validation must remain framework-independent." >&2
   exit 1
 fi
-finite_corner_line=$(grep -nF "if (!std::isfinite(corners[i].x) || !std::isfinite(corners[i].y))" "$FEATURES" | cut -d: -f1)
-convex_corner_line=$(grep -nF "if (!cv::isContourConvex(corners))" "$FEATURES" | cut -d: -f1)
-area_corner_line=$(grep -nF "double areaTwice = 0.0;" "$FEATURES" | cut -d: -f1)
-if [ -z "$finite_corner_line" ] || [ -z "$convex_corner_line" ] || \
-   [ -z "$area_corner_line" ] || [ "$finite_corner_line" -ge "$convex_corner_line" ] || \
-   [ "$convex_corner_line" -ge "$area_corner_line" ]; then
-  printf '%s\n' "Projected corners must be finite, convex, and non-degenerate in order." >&2
+
+for test_contract in \
+  'expectValidity("clockwise square", {{0, 0}, {0, 2}, {2, 2}, {2, 0}}, true);' \
+  'expectValidity("counter-clockwise square", {{0, 0}, {2, 0}, {2, 2}, {0, 2}}, true);' \
+  'expectValidity("exact minimum area", {{0, 0}, {1, 0}, {1, 1}, {0, 1}}, true);' \
+  'expectValidity("below minimum area", {{0, 0}, {0.5, 0}, {0.5, 1}, {0, 1}}, false);' \
+  'expectValidity("concave", {{0, 0}, {2, 0}, {1, 0.5}, {0, 2}}, false);' \
+  'expectValidity("crossing", {{0, 0}, {2, 2}, {0, 2}, {2, 0}}, false);' \
+  'expectValidity("collinear", {{0, 0}, {1, 0}, {2, 0}, {3, 0}}, false);' \
+  'expectValidity("duplicate point", {{0, 0}, {2, 0}, {2, 0}, {0, 2}}, false);' \
+  'expectValidity("three corners", {{0, 0}, {2, 0}, {0, 2}}, false);' \
+  'expectValidity("five corners", {{0, 0}, {2, 0}, {2, 2}, {1, 3}, {0, 2}}, false);' \
+  'expectValidity("nan coordinate", {{0, 0}, {2, 0}, {2, 2}, {0, std::numeric_limits<double>::quiet_NaN()}}, false);' \
+  'expectValidity("infinite coordinate", {{0, 0}, {2, 0}, {2, 2}, {0, std::numeric_limits<double>::infinity()}}, false);'; do
+  if ! grep -Fq "$test_contract" "$PROJECTED_CORNERS_TEST"; then
+    printf '%s\n' "Projected-corner executable case is missing: $test_contract" >&2
+    exit 1
+  fi
+done
+
+if [ ! -x "$PROJECTED_CORNERS_RUNNER" ] || \
+   ! grep -Fq 'BUILD_DIR=$(mktemp -d' "$PROJECTED_CORNERS_RUNNER" || \
+   ! grep -Fq 'trap cleanup 0' "$PROJECTED_CORNERS_RUNNER" || \
+   ! grep -Fq "trap 'exit 129' 1" "$PROJECTED_CORNERS_RUNNER" || \
+   ! grep -Fq "trap 'exit 130' 2" "$PROJECTED_CORNERS_RUNNER" || \
+   ! grep -Fq "trap 'exit 143' 15" "$PROJECTED_CORNERS_RUNNER" || \
+   ! grep -Fq 'Tests/ProjectedCornersTests.cpp' "$PROJECTED_CORNERS_RUNNER" || \
+   ! grep -Fq '"$BUILD_DIR/projected-corner-tests"' "$PROJECTED_CORNERS_RUNNER"; then
+  printf '%s\n' "Projected-corner runner must compile production behavior and clean temporary output." >&2
+  exit 1
+fi
+sh -n "$PROJECTED_CORNERS_RUNNER"
+
+if [ "$(grep -Fc "ProjectedCorners.hpp" "$PROJECT")" -ne 2 ]; then
+  printf '%s\n' "Xcode project must expose the portable projected-corner header exactly once." >&2
   exit 1
 fi
 
@@ -597,18 +646,10 @@ if ! grep -Fq "H.empty()" "$FEATURES"; then
   exit 1
 fi
 
-if ! grep -Fq "std::isfinite" "$FEATURES"; then
-  printf '%s\n' "features.mm must reject non-finite detected corners." >&2
-  exit 1
-fi
-
-if [ "$(grep -Fc 'static const double kMinimumProjectedArea = 1.0;' "$FEATURES")" -ne 1 ] || \
-  [ "$(grep -Fc 'double areaTwice = 0.0;' "$FEATURES")" -ne 1 ] || \
-  [ "$(grep -Fc 'size_t next = (i + 1) % corners.size();' "$FEATURES")" -ne 1 ] || \
-  [ "$(grep -Fc 'areaTwice += static_cast<double>(corners[i].x) * corners[next].y -' "$FEATURES")" -ne 1 ] || \
-  [ "$(grep -Fc 'static_cast<double>(corners[next].x) * corners[i].y;' "$FEATURES")" -ne 1 ] || \
-  [ "$(grep -Fc 'return std::fabs(areaTwice) >= 2.0 * kMinimumProjectedArea;' "$FEATURES")" -ne 1 ]; then
-  printf '%s\n' "features.mm must reject projected quadrilaterals below one square pixel." >&2
+if [ "$(grep -Fc 'const double minimumAreaTwice = 2.0;' "$PROJECTED_CORNERS")" -ne 1 ] || \
+  [ "$(grep -Fc 'double areaTwice = 0.0;' "$PROJECTED_CORNERS")" -ne 1 ] || \
+  [ "$(grep -Fc 'return std::fabs(areaTwice) >= minimumAreaTwice;' "$PROJECTED_CORNERS")" -ne 1 ]; then
+  printf '%s\n' "Portable validation must reject projected quadrilaterals below one square pixel." >&2
   exit 1
 fi
 
@@ -885,10 +926,29 @@ if [ ! -f "$ROOT_DIR/Makefile" ]; then
 fi
 
 if ! grep -Fq 'override ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))' "$ROOT_DIR/Makefile" || \
-   ! grep -Fq '$(ROOT)scripts/check-baseline.sh' "$ROOT_DIR/Makefile"; then
+   ! grep -Fq '$(ROOT)scripts/check-baseline.sh' "$ROOT_DIR/Makefile" || \
+   ! grep -Fq 'CXX ?= c++' "$ROOT_DIR/Makefile" || \
+   ! grep -Fq '$(ROOT)scripts/test-projected-corners.sh' "$ROOT_DIR/Makefile" || \
+   ! grep -Fq 'C++ compiler not found; skipping projected corner behavior tests.' "$ROOT_DIR/Makefile"; then
   printf '%s\n' "Makefile must protect and run the baseline relative to its own repository root." >&2
   exit 1
 fi
+
+if ! grep -Fq "status: completed" "$PROJECTED_CORNERS_PLAN" || \
+   ! grep -Fq "make check" "$PROJECTED_CORNERS_PLAN" || \
+   ! grep -Fq "external working directory" "$PROJECTED_CORNERS_PLAN" || \
+   ! grep -Fq "hostile mutations" "$PROJECTED_CORNERS_PLAN" || \
+   ! grep -Fq "hosted Ubuntu" "$PROJECTED_CORNERS_PLAN"; then
+  printf '%s\n' "Projected-corner test plan must record completed and truthful verification." >&2
+  exit 1
+fi
+
+for behavior_doc in AGENTS.md README.md SECURITY.md VISION.md CHANGES.md; do
+  if ! grep -Fq "Projected corner behavior" "$ROOT_DIR/$behavior_doc"; then
+    printf '%s\n' "$behavior_doc must document executable projected-corner behavior." >&2
+    exit 1
+  fi
+done
 
 if [ "$(grep -Ec '^(override[[:space:]]+)?ROOT[[:space:]]*[:?+]?=' "$ROOT_DIR/Makefile")" -ne 1 ]; then
   printf '%s\n' "Makefile must define exactly one repository-derived ROOT assignment." >&2

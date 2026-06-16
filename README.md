@@ -122,6 +122,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Detected corners pass a one-square-pixel projected-area guard before the
   detector returns them or the camera callback draws an overlay.
 - BrandCapture rejects non-convex projected quadrilaterals before overlay drawing.
+- Projected corner behavior is executed by `make test` with framework-independent
+  C++ cases for valid ordering and fail-closed geometry.
 - The camera permission text describes user-started local target-image detection
   and no microphone or location permission copy is declared.
 - Root Makefile checks and the optional Xcode build resolve paths from the

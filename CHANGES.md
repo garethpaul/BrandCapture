@@ -1,5 +1,10 @@
 # BrandCapture Changes
 
+## 2026-06-16
+
+- Projected corner behavior now runs as portable C++ with finite, convex,
+  crossing, cardinality, and minimum-area cases in `make check`.
+
 - Reconciled active capture state when the camera reference is already unavailable
   so lifecycle shutdown cannot leave capture controls stuck active.
 - Protected the repository-derived Make root from command-line overrides so
