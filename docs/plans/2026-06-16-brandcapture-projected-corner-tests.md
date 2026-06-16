@@ -61,6 +61,9 @@ Completed on 2026-06-16:
 - 13 hostile mutations were rejected across production delegation, cardinality,
   finite values, convex turns, area threshold, exact cases, cleanup, Make
   integration, project membership, plan evidence, and documentation.
-- `xcodebuild` is unavailable on Linux, so no Xcode, OpenCV framework,
-  simulator, camera, overlay, or device execution is claimed. Exact-head hosted
-  Ubuntu behavior execution remains a required pre-merge gate.
+- `xcodebuild` is unavailable on Linux and hosted Ubuntu, so no Xcode, OpenCV
+  framework, simulator, camera, overlay, or device execution is claimed.
+- Exact implementation head `76b0cbcaba0e3b5949bd699ba618724098b70ef7`
+  passed push run `27642258418` / job `81745079184` and pull-request run
+  `27642265073` / job `81745099183`. Both logs record the baseline success,
+  `Projected corner C++ tests passed.`, and the explicit Xcode skip.
