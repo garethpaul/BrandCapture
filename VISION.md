@@ -53,6 +53,8 @@ Next priorities:
 - Clarify target-image configuration for new brand examples
 - Execute the device verification matrix with synthetic references and
   privacy-safe permission, geometry, overlay, lifecycle, and sustained-use evidence
+- Keep Image matrix layout validation in the portable gate so native image
+  export cannot drift from its supported grayscale and four-channel formats.
 
 Contribution rules:
 

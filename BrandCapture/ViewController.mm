@@ -1,5 +1,6 @@
 #import "ViewController.h"
 #import "features.hpp"
+#include "ImageMatrixLayout.hpp"
 #include <limits>
 
 static NSString * const BrandCaptureReferenceImageName = @"clipper.jpg";
@@ -106,6 +107,7 @@ static BOOL BrandCaptureGetImagePixelSize(UIImage *image, int *cols, int *rows)
         return;
     }
 
+    // Frame processing exception boundary begins here.
     try
     {
         cv::vector<cv::Point2f> corners = detect(image);
@@ -119,6 +121,7 @@ static BOOL BrandCaptureGetImagePixelSize(UIImage *image, int *cols, int *rows)
         cv::line(image, corners[2], corners[3], cv::Scalar( 0, 0, 0 ), BrandCaptureOverlayThickness, 8);
         cv::line(image, corners[3], corners[0], cv::Scalar( 0, 0, 0 ), BrandCaptureOverlayThickness, 8);
     }
+    // Frame processing exception boundary ends here.
     catch (const cv::Exception&)
     {
         return;
@@ -266,13 +269,47 @@ static BOOL BrandCaptureGetImagePixelSize(UIImage *image, int *cols, int *rows)
         return nil;
     }
 
-    NSData *data = [NSData dataWithBytes:cvMat.data length:cvMat.elemSize()*cvMat.total()];
+    if (cvMat.depth() != CV_8U || (cvMat.channels() != 1 && cvMat.channels() != 4))
+    {
+        return nil;
+    }
+
+    cv::Mat imageMat;
+    try
+    {
+        const bool requiresClone = brandcapture::requiresPackedImageClone(
+            static_cast<std::size_t>(cvMat.cols),
+            cvMat.elemSize(),
+            cvMat.step[0],
+            cvMat.isContinuous());
+        imageMat = requiresClone ? cvMat.clone() : cvMat;
+    }
+    catch (const cv::Exception&)
+    {
+        return nil;
+    }
+
+    brandcapture::ImageMatrixLayout layout;
+    if (!brandcapture::getImageMatrixLayout(imageMat.cols,
+                                            imageMat.rows,
+                                            imageMat.channels(),
+                                            imageMat.elemSize(),
+                                            imageMat.step[0],
+                                            &layout))
+    {
+        return nil;
+    }
+
+    NSData *data = [NSData dataWithBytes:imageMat.data length:layout.totalBytes];
     CGColorSpaceRef colorSpace;
+    CGBitmapInfo bitmapInfo;
     
-    if (cvMat.elemSize() == 1) {
+    if (layout.channelCount == 1) {
         colorSpace = CGColorSpaceCreateDeviceGray();
+        bitmapInfo = kCGImageAlphaNone;
     } else {
         colorSpace = CGColorSpaceCreateDeviceRGB();
+        bitmapInfo = kCGImageAlphaNoneSkipLast | kCGBitmapByteOrderDefault;
     }
     if (colorSpace == NULL)
     {
@@ -287,13 +324,13 @@ static BOOL BrandCaptureGetImagePixelSize(UIImage *image, int *cols, int *rows)
     }
     
     // Creating CGImage from cv::Mat
-    CGImageRef imageRef = CGImageCreate(cvMat.cols,                                 //width
-                                        cvMat.rows,                                 //height
+    CGImageRef imageRef = CGImageCreate(imageMat.cols,                              //width
+                                        imageMat.rows,                              //height
                                         8,                                          //bits per component
-                                        8 * cvMat.elemSize(),                       //bits per pixel
-                                        cvMat.step[0],                            //bytesPerRow
+                                        8 * layout.channelCount,                    //bits per pixel
+                                        layout.rowBytes,                            //bytesPerRow
                                         colorSpace,                                 //colorspace
-                                        kCGImageAlphaNone|kCGBitmapByteOrderDefault,// bitmap info
+                                        bitmapInfo,                                 //bitmap info
                                         provider,                                   //CGDataProviderRef
                                         NULL,                                       //decode
                                         false,                                      //should interpolate

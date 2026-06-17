@@ -103,6 +103,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   storyboard wiring leaves capture disabled.
 - The grayscale conversion uses an explicit device-gray color space with
   one-channel bitmap info before handing frames to OpenCV.
+- Image matrix layout validation rejects unsupported depths and channel counts,
+  and non-contiguous Mats are cloned before UIKit byte export.
 - UIImage conversions use CGImage pixel dimensions instead of point-based image
   sizes when allocating OpenCV buffers.
 - The desktop OpenCV sample stays out of the iOS target sources while remaining

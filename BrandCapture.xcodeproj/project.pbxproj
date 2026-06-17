@@ -33,6 +33,7 @@
 		7FD309241D43B9700004F323 /* features.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = features.mm; sourceTree = "<group>"; };
 		7FD309251D43B9700004F323 /* features.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = features.hpp; sourceTree = "<group>"; };
 		7FD30A001D43B9700004F323 /* ProjectedCorners.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ProjectedCorners.hpp; sourceTree = "<group>"; };
+		7FD30A011D43B9700004F323 /* ImageMatrixLayout.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ImageMatrixLayout.hpp; sourceTree = "<group>"; };
 		7FD309271D43BF550004F323 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		7FD309291D43BFA50004F323 /* Brand-Capture-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Brand-Capture-Prefix.pch"; sourceTree = "<group>"; };
 		7FD3092A1D43C5D60004F323 /* clipper.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = clipper.jpg; sourceTree = "<group>"; };
@@ -95,6 +96,7 @@
 				7FD309241D43B9700004F323 /* features.mm */,
 				7FD309251D43B9700004F323 /* features.hpp */,
 				7FD30A001D43B9700004F323 /* ProjectedCorners.hpp */,
+				7FD30A011D43B9700004F323 /* ImageMatrixLayout.hpp */,
 				7FD309271D43BF550004F323 /* main.cpp */,
 			);
 			path = BrandCapture;

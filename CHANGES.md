@@ -1,5 +1,10 @@
 # BrandCapture Changes
 
+## 2026-06-17
+
+- Added portable Image matrix layout validation and guarded UIKit export
+  against unsupported, padded, overflowing, and non-contiguous Mat buffers.
+
 ## 2026-06-16
 
 - Projected corner behavior now runs as portable C++ with finite, convex,

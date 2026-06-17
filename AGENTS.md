@@ -56,6 +56,8 @@
 - BrandCapture rejects non-convex projected quadrilaterals before overlay drawing.
 - Projected corner behavior is executed with portable C++ cases for finite,
   convex, and minimum-area decisions.
+- Image matrix layout behavior is executed with portable C++ cases; UIKit
+  export supports only tightly packed 8-bit grayscale and four-channel Mats.
 - `Pods/` is vendored dependency code; do not hand-edit it unless intentionally updating dependencies.
 
 ## Agent workflow
