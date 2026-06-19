@@ -1,5 +1,13 @@
 # BrandCapture Changes
 
+## 2026-06-13
+
+- Retained zero-distance descriptor matches at the inclusive
+  three-times-minimum threshold so exact reference matches can proceed to
+  homography validation.
+- Added an SDK-free regression contract and maintenance documentation for the
+  inclusive matcher boundary.
+
 ## 2026-06-12
 
 - Disabled checkout credential persistence in the canonical static Check job
