@@ -67,7 +67,7 @@ The job does not persist checkout credentials after source retrieval.
 
 The legacy baseline is Objective-C++ camera processing, OpenCV 2.4.9, CocoaPods 1.0.1 provenance, bundle identifier `com.gpj.BrandCapture`, and iOS deployment target 8.0.
 
-This host does not have `xcodebuild` or `pod`, so full build, simulator/device, and CocoaPods verification must happen on a macOS machine with the matching legacy toolchain.
+When `xcodebuild` or `pod` is unavailable, full build, simulator/device, and CocoaPods verification must happen on a macOS machine with the matching legacy toolchain.
 
 Use [`DEVICE_VERIFICATION.md`](DEVICE_VERIFICATION.md) for the exact-commit
 BrandCapture matrix. It covers permission, reference setup, descriptor and
@@ -103,6 +103,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   storyboard wiring leaves capture disabled.
 - The grayscale conversion uses an explicit device-gray color space with
   one-channel bitmap info before handing frames to OpenCV.
+- Image matrix layout validation rejects unsupported depths and channel counts,
+  and non-contiguous Mats are cloned before UIKit byte export.
 - UIImage conversions use CGImage pixel dimensions instead of point-based image
   sizes when allocating OpenCV buffers.
 - The desktop OpenCV sample stays out of the iOS target sources while remaining
@@ -128,6 +130,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   and no microphone or location permission copy is declared.
 - Root Makefile checks and the optional Xcode build resolve paths from the
   Makefile location, so `make -f` works outside the checkout directory.
+- Xcode prefix-header settings use the checked-in `BrandCapture/Brand-Capture-Prefix.pch`
+  path instead of a developer-local absolute path.
 - The repository-derived Make root cannot be redirected with a caller-supplied ROOT value.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.

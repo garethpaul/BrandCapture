@@ -11,6 +11,9 @@ FEATURES_HEADER="$ROOT_DIR/BrandCapture/features.hpp"
 PROJECTED_CORNERS="$ROOT_DIR/BrandCapture/ProjectedCorners.hpp"
 PROJECTED_CORNERS_TEST="$ROOT_DIR/Tests/ProjectedCornersTests.cpp"
 PROJECTED_CORNERS_RUNNER="$ROOT_DIR/scripts/test-projected-corners.sh"
+IMAGE_MATRIX_LAYOUT="$ROOT_DIR/BrandCapture/ImageMatrixLayout.hpp"
+IMAGE_MATRIX_LAYOUT_TEST="$ROOT_DIR/Tests/ImageMatrixLayoutTests.cpp"
+IMAGE_MATRIX_LAYOUT_RUNNER="$ROOT_DIR/scripts/test-image-matrix-layout.sh"
 INFO_PLIST="$ROOT_DIR/BrandCapture/Info.plist"
 PODFILE="$ROOT_DIR/Podfile"
 POD_LOCK="$ROOT_DIR/Podfile.lock"
@@ -33,6 +36,7 @@ CHECKOUT_CREDENTIAL_PLAN="$ROOT_DIR/docs/plans/2026-06-12-checkout-credential-bo
 MAKE_ROOT_PROTECTION_PLAN="$ROOT_DIR/docs/plans/2026-06-15-brandcapture-make-root-override-protection.md"
 STOP_STATE_PLAN="$ROOT_DIR/docs/plans/2026-06-15-brandcapture-stop-state-reconciliation.md"
 PROJECTED_CORNERS_PLAN="$ROOT_DIR/docs/plans/2026-06-16-brandcapture-projected-corner-tests.md"
+IMAGE_MATRIX_LAYOUT_PLAN="$ROOT_DIR/docs/plans/2026-06-17-brandcapture-image-matrix-layout.md"
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
   printf '%s\n' "CHANGES.md must document repository maintenance." >&2
@@ -73,6 +77,7 @@ for path in \
   "docs/plans/2026-06-15-brandcapture-make-root-override-protection.md" \
   "docs/plans/2026-06-15-brandcapture-stop-state-reconciliation.md" \
   "docs/plans/2026-06-16-brandcapture-projected-corner-tests.md" \
+  "docs/plans/2026-06-17-brandcapture-image-matrix-layout.md" \
   ".github/workflows/check.yml" \
   "BrandCapture.xcworkspace/contents.xcworkspacedata" \
   "BrandCapture.xcodeproj/project.pbxproj" \
@@ -82,8 +87,11 @@ for path in \
   "BrandCapture/features.mm" \
   "BrandCapture/features.hpp" \
   "BrandCapture/ProjectedCorners.hpp" \
+  "BrandCapture/ImageMatrixLayout.hpp" \
   "Tests/ProjectedCornersTests.cpp" \
+  "Tests/ImageMatrixLayoutTests.cpp" \
   "scripts/test-projected-corners.sh" \
+  "scripts/test-image-matrix-layout.sh" \
   "BrandCapture/clipper.jpg" \
   "BrandCapture/Info.plist" \
   "Podfile" \
@@ -123,6 +131,12 @@ fi
 
 if ! grep -Fq "sourcecode.cpp.objcpp" "$PROJECT"; then
   printf '%s\n' "Objective-C++ files must have Objective-C++ file type in the project." >&2
+  exit 1
+fi
+
+if grep -Eq 'GCC_PREFIX_HEADER = "?/Users/' "$PROJECT" ||
+   [ "$(grep -Fc 'GCC_PREFIX_HEADER = "BrandCapture/Brand-Capture-Prefix.pch";' "$PROJECT")" -ne 2 ]; then
+  printf '%s\n' "Xcode prefix header must use the repository-relative BrandCapture prefix header." >&2
   exit 1
 fi
 
@@ -335,10 +349,10 @@ unique_line_number() {
 }
 
 process_line=$(unique_line_number "- (void)processImage:(cv::Mat&)image" "processImage")
-try_line=$(unique_line_number "    try" "frame-processing try")
+try_line=$(unique_line_number "// Frame processing exception boundary begins here." "frame-processing try")
 detect_line=$(unique_line_number "cv::vector<cv::Point2f> corners = detect(image);" "frame detection")
 overlay_line=$(unique_line_number "cv::line(image, corners[3], corners[0]" "final overlay edge")
-catch_line=$(unique_line_number "catch (const cv::Exception&)" "OpenCV catch")
+catch_line=$(unique_line_number "// Frame processing exception boundary ends here." "OpenCV catch")
 next_method_line=$(unique_line_number "- (void)didReceiveMemoryWarning" "post-processing method")
 
 if [ "$process_line" -ge "$try_line" ] || [ "$try_line" -ge "$detect_line" ] || \
@@ -855,8 +869,8 @@ if ! grep -Fq "CocoaPods 1.0.1" "$ROOT_DIR/README.md"; then
   exit 1
 fi
 
-if ! grep -Fq 'This host does not have `xcodebuild` or `pod`' "$ROOT_DIR/README.md"; then
-  printf '%s\n' "README must document local Apple toolchain limitations." >&2
+if ! grep -Fq 'When `xcodebuild` or `pod` is unavailable' "$ROOT_DIR/README.md"; then
+  printf '%s\n' "README must document local Apple toolchain limitations without hard-coding host state." >&2
   exit 1
 fi
 
@@ -929,7 +943,8 @@ if ! grep -Fq 'override ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))' 
    ! grep -Fq '$(ROOT)scripts/check-baseline.sh' "$ROOT_DIR/Makefile" || \
    ! grep -Fq 'CXX ?= c++' "$ROOT_DIR/Makefile" || \
    ! grep -Fq '$(ROOT)scripts/test-projected-corners.sh' "$ROOT_DIR/Makefile" || \
-   ! grep -Fq 'C++ compiler not found; skipping projected corner behavior tests.' "$ROOT_DIR/Makefile"; then
+   ! grep -Fq '$(ROOT)scripts/test-image-matrix-layout.sh' "$ROOT_DIR/Makefile" || \
+   ! grep -Fq 'C++ compiler not found; skipping portable C++ behavior tests.' "$ROOT_DIR/Makefile"; then
   printf '%s\n' "Makefile must protect and run the baseline relative to its own repository root." >&2
   exit 1
 fi
@@ -946,6 +961,69 @@ fi
 for behavior_doc in AGENTS.md README.md SECURITY.md VISION.md CHANGES.md; do
   if ! grep -Fq "Projected corner behavior" "$ROOT_DIR/$behavior_doc"; then
     printf '%s\n' "$behavior_doc must document executable projected-corner behavior." >&2
+    exit 1
+  fi
+done
+
+for layout_contract in \
+  'return !isContinuous || rowBytes != columns * elementBytes;' \
+  'channelCount != 1 && channelCount != 4' \
+  'elementBytes != static_cast<std::size_t>(channelCount)' \
+  'rowBytes != packedRowBytes' \
+  'rows > maximum / rowBytes' \
+  'layout->totalBytes = rowBytes * rows;'; do
+  if ! grep -Fq "$layout_contract" "$IMAGE_MATRIX_LAYOUT"; then
+    printf '%s\n' "Image matrix layout contract is missing: $layout_contract" >&2
+    exit 1
+  fi
+done
+
+if ! grep -Fq '#include "ImageMatrixLayout.hpp"' "$VIEW_CONTROLLER" || \
+   ! grep -Fq 'cvMat.depth() != CV_8U' "$VIEW_CONTROLLER" || \
+   ! grep -Fq 'brandcapture::requiresPackedImageClone' "$VIEW_CONTROLLER" || \
+   ! grep -Fq 'requiresClone ? cvMat.clone() : cvMat' "$VIEW_CONTROLLER" || \
+   ! grep -Fq 'brandcapture::getImageMatrixLayout' "$VIEW_CONTROLLER" || \
+   ! grep -Fq 'length:layout.totalBytes' "$VIEW_CONTROLLER" || \
+   ! grep -Fq 'kCGImageAlphaNoneSkipLast | kCGBitmapByteOrderDefault' "$VIEW_CONTROLLER"; then
+  printf '%s\n' "UIImage conversion must enforce the portable matrix layout before export." >&2
+  exit 1
+fi
+
+for layout_case in \
+  '"grayscale"' \
+  '"four channel"' \
+  '"two channels"' \
+  '"three channels"' \
+  '"multi-byte gray"' \
+  '"padded row"' \
+  '"row overflow"' \
+  '"total overflow"' \
+  'packed clone decision failed' \
+  'null output'; do
+  if ! grep -Fq "$layout_case" "$IMAGE_MATRIX_LAYOUT_TEST"; then
+    printf '%s\n' "Image matrix layout test case is missing: $layout_case" >&2
+    exit 1
+  fi
+done
+
+if ! grep -Fq 'Tests/ImageMatrixLayoutTests.cpp' "$IMAGE_MATRIX_LAYOUT_RUNNER" || \
+   ! grep -Fq 'trap cleanup 0' "$IMAGE_MATRIX_LAYOUT_RUNNER" || \
+   [ "$(grep -Fc 'ImageMatrixLayout.hpp' "$PROJECT")" -ne 2 ]; then
+  printf '%s\n' "Image matrix layout runner, cleanup, and Xcode membership must remain wired." >&2
+  exit 1
+fi
+
+if ! grep -Fq 'status: completed' "$IMAGE_MATRIX_LAYOUT_PLAN" || \
+   ! grep -Fq 'repository and external-directory `make check`' "$IMAGE_MATRIX_LAYOUT_PLAN" || \
+   ! grep -Fq 'isolated hostile mutations' "$IMAGE_MATRIX_LAYOUT_PLAN" || \
+   ! grep -Fq 'xcodebuild is unavailable' "$IMAGE_MATRIX_LAYOUT_PLAN"; then
+  printf '%s\n' "Image matrix layout plan must record completed and truthful verification." >&2
+  exit 1
+fi
+
+for layout_doc in AGENTS.md README.md SECURITY.md VISION.md CHANGES.md; do
+  if ! grep -Fq 'Image matrix layout' "$ROOT_DIR/$layout_doc"; then
+    printf '%s\n' "$layout_doc must document the supported image matrix layout boundary." >&2
     exit 1
   fi
 done
