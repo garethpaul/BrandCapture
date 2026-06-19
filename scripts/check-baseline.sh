@@ -21,6 +21,7 @@ CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-ci-baseline.md"
 CAMERA_INACTIVE_PLAN="$ROOT_DIR/docs/plans/2026-06-10-brandcapture-camera-inactive-lifecycle.md"
 FRAME_EXCEPTION_PLAN="$ROOT_DIR/docs/plans/2026-06-12-brandcapture-frame-exception-containment.md"
 ZERO_DISTANCE_PLAN="$ROOT_DIR/docs/plans/2026-06-13-brandcapture-zero-distance-matches.md"
+REFERENCE_SETUP_PLAN="$ROOT_DIR/docs/plans/2026-06-13-brandcapture-reference-setup.md"
 CHECKOUT_CREDENTIAL_PLAN="$ROOT_DIR/docs/plans/2026-06-12-checkout-credential-boundary.md"
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
@@ -55,6 +56,7 @@ for path in \
   "docs/plans/2026-06-10-brandcapture-camera-inactive-lifecycle.md" \
   "docs/plans/2026-06-12-brandcapture-frame-exception-containment.md" \
   "docs/plans/2026-06-13-brandcapture-zero-distance-matches.md" \
+  "docs/plans/2026-06-13-brandcapture-reference-setup.md" \
   "docs/plans/2026-06-12-checkout-credential-boundary.md" \
   ".github/workflows/check.yml" \
   "BrandCapture.xcworkspace/contents.xcworkspacedata" \
@@ -283,6 +285,92 @@ if ! grep -Fq "static std::vector<Point2f> emptyCorners()" "$FEATURES"; then
   printf '%s\n' "features.mm must return explicit empty detections on failure." >&2
   exit 1
 fi
+
+setup_body=$(sed -n '/^bool setup(NSString\* filename)/,/^}/p' "$FEATURES")
+for setup_contract in \
+  "clearObjectState();" \
+  "try {" \
+  "Mat candidateObject = imread" \
+  "std::vector<KeyPoint> candidateKeypoints;" \
+  "detector.detect(candidateObject, candidateKeypoints);" \
+  "Mat candidateDescriptors;" \
+  "extractor.compute(candidateObject, candidateKeypoints, candidateDescriptors);" \
+  "if (candidateDescriptors.empty())" \
+  "img_object = candidateObject;" \
+  "keypoints_object = candidateKeypoints;" \
+  "descriptors_object = candidateDescriptors;" \
+  "catch (const cv::Exception&)"; do
+  if ! printf '%s\n' "$setup_body" | grep -Fq "$setup_contract"; then
+    printf '%s\n' "Reference setup must preserve its atomic OpenCV contract: $setup_contract" >&2
+    exit 1
+  fi
+done
+
+if ! grep -Fq "static void clearObjectState()" "$FEATURES" || \
+   ! grep -Fq "img_object.release();" "$FEATURES" || \
+   ! grep -Fq "keypoints_object.clear();" "$FEATURES" || \
+   ! grep -Fq "descriptors_object.release();" "$FEATURES"; then
+  printf '%s\n' "Reference setup must centralize published detector-state clearing." >&2
+  exit 1
+fi
+
+if printf '%s\n' "$setup_body" | grep -Fq "detector.detect( img_object, keypoints_object )" || \
+   printf '%s\n' "$setup_body" | grep -Fq "extractor.compute( img_object, keypoints_object, descriptors_object )"; then
+  printf '%s\n' "Reference setup must not mutate published detector state before validation." >&2
+  exit 1
+fi
+
+setup_clear_line=$(printf '%s\n' "$setup_body" | grep -nF "clearObjectState();" | head -n 1 | cut -d: -f1)
+setup_filename_guard_line=$(printf '%s\n' "$setup_body" | grep -nF "if (filename == nil)" | cut -d: -f1)
+setup_try_line=$(printf '%s\n' "$setup_body" | grep -nF "try {" | cut -d: -f1)
+setup_descriptor_guard_line=$(printf '%s\n' "$setup_body" | grep -nF "if (candidateDescriptors.empty())" | cut -d: -f1)
+setup_publish_image_line=$(printf '%s\n' "$setup_body" | grep -nF "img_object = candidateObject;" | cut -d: -f1)
+setup_publish_keypoints_line=$(printf '%s\n' "$setup_body" | grep -nF "keypoints_object = candidateKeypoints;" | cut -d: -f1)
+setup_publish_descriptors_line=$(printf '%s\n' "$setup_body" | grep -nF "descriptors_object = candidateDescriptors;" | cut -d: -f1)
+setup_success_line=$(printf '%s\n' "$setup_body" | grep -nF "return true;" | cut -d: -f1)
+setup_catch_line=$(printf '%s\n' "$setup_body" | grep -nF "catch (const cv::Exception&)" | cut -d: -f1)
+
+for setup_line in "$setup_clear_line" "$setup_filename_guard_line" "$setup_try_line" \
+  "$setup_descriptor_guard_line" "$setup_publish_image_line" "$setup_publish_keypoints_line" \
+  "$setup_publish_descriptors_line" "$setup_success_line" "$setup_catch_line"; do
+  if [ -z "$setup_line" ]; then
+    printf '%s\n' "Reference setup ordering markers must remain unique and present." >&2
+    exit 1
+  fi
+done
+
+if [ "$setup_clear_line" -ge "$setup_filename_guard_line" ] || \
+   [ "$setup_filename_guard_line" -ge "$setup_try_line" ] || \
+   [ "$setup_try_line" -ge "$setup_descriptor_guard_line" ] || \
+   [ "$setup_descriptor_guard_line" -ge "$setup_publish_image_line" ] || \
+   [ "$setup_publish_image_line" -ge "$setup_publish_keypoints_line" ] || \
+   [ "$setup_publish_keypoints_line" -ge "$setup_publish_descriptors_line" ] || \
+   [ "$setup_publish_descriptors_line" -ge "$setup_success_line" ] || \
+   [ "$setup_success_line" -ge "$setup_catch_line" ]; then
+  printf '%s\n' "Reference setup must clear, stage, validate, publish, and catch in fail-closed order." >&2
+  exit 1
+fi
+
+if ! grep -Fq "stages reference image," "$ROOT_DIR/README.md" || \
+   ! grep -Fq "keypoint, and descriptor state locally" "$ROOT_DIR/README.md" || \
+   ! grep -Fq "2026-06-13-brandcapture-reference-setup.md" "$ROOT_DIR/README.md" || \
+   ! grep -Fq "atomic reference-detector setup" "$ROOT_DIR/VISION.md" || \
+   ! grep -Fq "Cleared stale reference state and staged OpenCV setup locally" "$ROOT_DIR/CHANGES.md"; then
+  printf '%s\n' "Atomic reference setup documentation and plan links must remain checked in." >&2
+  exit 1
+fi
+
+for setup_plan_contract in \
+  "status: completed" \
+  "## Status: Completed" \
+  "make check" \
+  "isolated hostile mutations were rejected" \
+  "no xcodebuild, OpenCV execution, simulator camera"; do
+  if ! grep -Fq "$setup_plan_contract" "$REFERENCE_SETUP_PLAN"; then
+    printf '%s\n' "Atomic reference setup plan must record completed verification: $setup_plan_contract" >&2
+    exit 1
+  fi
+done
 
 if ! grep -Fq "path == nil" "$FEATURES"; then
   printf '%s\n' "features.mm must guard missing bundled target images." >&2
