@@ -126,6 +126,9 @@ vector<Point2f> detect(Mat img_scene)
     //-- Quick calculation of max and min distances between keypoints
     for( size_t i = 0; i < matches.size(); i++ )
     { double dist = matches[i].distance;
+        if (!std::isfinite(dist)) {
+            return emptyCorners();
+        }
         if( dist < min_dist ) min_dist = dist;
     }
     

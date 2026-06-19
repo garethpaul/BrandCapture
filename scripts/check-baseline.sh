@@ -23,6 +23,7 @@ FRAME_EXCEPTION_PLAN="$ROOT_DIR/docs/plans/2026-06-12-brandcapture-frame-excepti
 ZERO_DISTANCE_PLAN="$ROOT_DIR/docs/plans/2026-06-13-brandcapture-zero-distance-matches.md"
 REFERENCE_SETUP_PLAN="$ROOT_DIR/docs/plans/2026-06-13-brandcapture-reference-setup.md"
 DEGENERATE_CORNERS_PLAN="$ROOT_DIR/docs/plans/2026-06-13-brandcapture-degenerate-corners.md"
+FINITE_MATCH_DISTANCE_PLAN="$ROOT_DIR/docs/plans/2026-06-13-brandcapture-finite-match-distance.md"
 CHECKOUT_CREDENTIAL_PLAN="$ROOT_DIR/docs/plans/2026-06-12-checkout-credential-boundary.md"
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
@@ -404,6 +405,24 @@ if ! grep -Fq "matches.size() < kMinimumGoodMatches" "$FEATURES"; then
   exit 1
 fi
 
+finite_distance_guard='if (!std::isfinite(dist))'
+minimum_distance_update='if( dist < min_dist ) min_dist = dist;'
+if [ "$(grep -Fc "$finite_distance_guard" "$FEATURES")" -ne 1 ] ||
+  [ "$(grep -Fc "$minimum_distance_update" "$FEATURES")" -ne 1 ]; then
+  printf '%s\n' "features.mm must retain one finite-distance guard and minimum-distance update." >&2
+  exit 1
+fi
+
+finite_distance_guard_line=$(grep -nF "$finite_distance_guard" "$FEATURES" | cut -d: -f1)
+minimum_distance_update_line=$(grep -nF "$minimum_distance_update" "$FEATURES" | cut -d: -f1)
+if [ -z "$finite_distance_guard_line" ] || [ -z "$minimum_distance_update_line" ] ||
+  [ "$finite_distance_guard_line" -ge "$minimum_distance_update_line" ] ||
+  ! sed -n "${finite_distance_guard_line},$((finite_distance_guard_line + 3))p" "$FEATURES" |
+    grep -Fq "return emptyCorners();"; then
+  printf '%s\n' "features.mm must reject non-finite match distances before threshold calculation." >&2
+  exit 1
+fi
+
 inclusive_match_boundary='if( matches[i].distance <= kGoodMatchDistanceMultiplier*min_dist )'
 if [ "$(grep -Fc 'static const double kGoodMatchDistanceMultiplier = 3.0;' "$FEATURES")" -ne 1 ] || \
    [ "$(grep -Fc "$inclusive_match_boundary" "$FEATURES")" -ne 1 ] || \
@@ -499,6 +518,26 @@ if ! grep -Fq "exact descriptor matches" "$ROOT_DIR/README.md" || \
   printf '%s\n' "Exact-match boundary documentation and plan contracts must remain checked in." >&2
   exit 1
 fi
+
+if ! grep -Fq "non-finite matcher distances" "$ROOT_DIR/README.md" || \
+  ! grep -Fq "finite matcher distances" "$ROOT_DIR/VISION.md" || \
+  ! grep -Fq "non-finite descriptor-match distances" "$ROOT_DIR/CHANGES.md" || \
+  ! grep -Fq 'R1. `detect()` must fail closed when any matcher distance is not finite.' "$FINITE_MATCH_DISTANCE_PLAN"; then
+  printf '%s\n' "Finite match-distance documentation and plan contracts must remain checked in." >&2
+  exit 1
+fi
+
+for finite_distance_plan_contract in \
+  "status: completed" \
+  "## Status: Completed" \
+  "make verify" \
+  "isolated hostile mutations were rejected" \
+  "no xcodebuild, OpenCV execution, simulator camera"; do
+  if ! grep -Fq "$finite_distance_plan_contract" "$FINITE_MATCH_DISTANCE_PLAN"; then
+    printf '%s\n' "Finite match-distance plan must record completed verification: $finite_distance_plan_contract" >&2
+    exit 1
+  fi
+done
 
 if grep -Fq "drawMatches(" "$FEATURES"; then
   printf '%s\n' "features.mm must not build unused match visualizations during frame processing." >&2
