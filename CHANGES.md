@@ -2,6 +2,7 @@
 
 ## 2026-06-13
 
+- BrandCapture rejects non-convex projected quadrilaterals before overlay drawing.
 - Rejected non-finite descriptor-match distances before threshold calculation
   and homography input collection.
 - Rejected finite but degenerate projected quadrilaterals before detector output
