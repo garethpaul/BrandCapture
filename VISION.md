@@ -37,6 +37,9 @@ Priority:
 - Keep non-persisted checkout credentials in hosted verification
 - Maintain the target image and detection code relationship
 - Avoid changes that require unavailable Apple tooling without documenting them
+- Keep exact-commit BrandCapture device verification matrix evidence separate
+  from portable checks, with unexecuted Xcode, OpenCV, camera, overlay, and
+  device rows explicit
 
 Next priorities:
 
@@ -44,6 +47,8 @@ Next priorities:
 - Modernize OpenCV and iOS toolchain assumptions in a dedicated pass
 - Add safer failure handling when feature detection cannot produce corners
 - Clarify target-image configuration for new brand examples
+- Execute the device verification matrix with synthetic references and
+  privacy-safe permission, geometry, overlay, lifecycle, and sustained-use evidence
 
 Contribution rules:
 

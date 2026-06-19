@@ -25,6 +25,7 @@ REFERENCE_SETUP_PLAN="$ROOT_DIR/docs/plans/2026-06-13-brandcapture-reference-set
 DEGENERATE_CORNERS_PLAN="$ROOT_DIR/docs/plans/2026-06-13-brandcapture-degenerate-corners.md"
 FINITE_MATCH_DISTANCE_PLAN="$ROOT_DIR/docs/plans/2026-06-13-brandcapture-finite-match-distance.md"
 CONVEX_CORNERS_PLAN="$ROOT_DIR/docs/plans/2026-06-14-brandcapture-convex-corners.md"
+DEVICE_VERIFICATION_PLAN="$ROOT_DIR/docs/plans/2026-06-14-brandcapture-device-verification-checklist.md"
 CHECKOUT_CREDENTIAL_PLAN="$ROOT_DIR/docs/plans/2026-06-12-checkout-credential-boundary.md"
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
@@ -321,6 +322,56 @@ done
 for convex_plan_contract in "Status: Completed" "make check" "hostile mutations"; do
   if ! grep -Fq "$convex_plan_contract" "$CONVEX_CORNERS_PLAN"; then
     printf '%s\n' "Convex-corner plan must record completed verification: $convex_plan_contract" >&2
+    exit 1
+  fi
+done
+
+for required_device_path in "$ROOT_DIR/DEVICE_VERIFICATION.md" "$DEVICE_VERIFICATION_PLAN"; do
+  if [ ! -f "$required_device_path" ]; then
+    printf '%s\n' "Required BrandCapture device verification file is missing: ${required_device_path#"$ROOT_DIR/"}" >&2
+    exit 1
+  fi
+done
+
+for device_contract in \
+  'commit SHA and pull request' \
+  'synthetic reference image' \
+  'Camera permission denied' \
+  'Camera permission granted' \
+  'Reference setup' \
+  'No scene keypoints' \
+  'Exact descriptor match' \
+  'Non-finite match distance' \
+  'Degenerate quadrilateral' \
+  'Non-convex quadrilateral' \
+  'Valid overlay' \
+  'Capture controls' \
+  'Orientation change' \
+  'Sustained capture' \
+  'Do not convert `not run` into passing evidence.' \
+  'device identifiers, camera captures, room imagery' \
+  'every Xcode, OpenCV, camera, overlay, and device row as unexecuted'; do
+  if ! grep -Fq "$device_contract" "$ROOT_DIR/DEVICE_VERIFICATION.md"; then
+    printf '%s\n' "BrandCapture device checklist must keep contract: $device_contract" >&2
+    exit 1
+  fi
+done
+
+if ! grep -Fq 'DEVICE_VERIFICATION.md' "$ROOT_DIR/README.md" || \
+   ! grep -Fq 'explicit unexecuted rows' "$ROOT_DIR/README.md" || \
+   ! grep -Fq 'BrandCapture device verification matrix' "$ROOT_DIR/VISION.md" || \
+   ! grep -Fq 'every runtime row explicitly unexecuted' "$ROOT_DIR/CHANGES.md"; then
+  printf '%s\n' 'Repository guidance must document the unexecuted BrandCapture device matrix.' >&2
+  exit 1
+fi
+
+for device_plan_contract in \
+  'Status: Completed' \
+  'make check' \
+  'hostile mutations' \
+  'No Xcode build, iOS simulator, physical camera, OpenCV framework runtime, or live overlay scenario was executed'; do
+  if ! grep -Fq "$device_plan_contract" "$DEVICE_VERIFICATION_PLAN"; then
+    printf '%s\n' "BrandCapture device plan must keep completion evidence: $device_plan_contract" >&2
     exit 1
   fi
 done

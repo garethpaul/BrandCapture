@@ -1,5 +1,11 @@
 # BrandCapture Changes
 
+## 2026-06-14
+
+- Added an exact-commit BrandCapture device verification matrix for permission,
+  reference setup, descriptor and geometry rejection, valid overlays, controls,
+  orientation, lifecycle, sustained capture, and privacy-safe evidence, with every runtime row explicitly unexecuted.
+
 ## 2026-06-13
 
 - BrandCapture rejects non-convex projected quadrilaterals before overlay drawing.
