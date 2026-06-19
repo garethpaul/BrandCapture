@@ -33,6 +33,8 @@ Helpful reports include:
   checkout action, read-only repository access, and a bounded runtime.
 - The Make root is protected from command-line overrides so checker and Xcode
   workspace paths cannot be redirected outside the reviewed checkout.
+- Lifecycle shutdown is fail-closed so missing camera ownership cannot leave
+  capture controls active.
 
 ## Mobile Privacy Notes
 
