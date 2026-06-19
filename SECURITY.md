@@ -46,6 +46,8 @@ The canonical Check job uses a read-only, non-persisted checkout token so later
 steps cannot reuse repository credentials from the working copy.
 
 BrandCapture rejects non-convex projected quadrilaterals before overlay drawing.
+Projected corner behavior executes without UIKit or OpenCV linkage and covers
+non-finite, crossing, collinear, duplicate, and undersized geometry.
 
 Dependency updates should come from trusted package managers and should keep lockfiles in sync when lockfiles exist. Do not commit credentials, private keys, tokens, generated secrets, or machine-local configuration. If a vulnerability depends on a compromised package, typosquatting risk, insecure transitive dependency, or unsafe build step, include the package name, affected version, and the path through which it is used.
 

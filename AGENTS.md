@@ -33,7 +33,8 @@
 
 ## Testing guidance
 
-- No dedicated test files were detected; treat `make check` as the minimum baseline.
+- `Tests/ProjectedCornersTests.cpp` executes the production projected-corner
+  decisions; treat `make check` as the minimum baseline.
 - Start with the narrowest relevant test or Make target, then run `make check` before handing off if the change is not documentation-only.
 - Keep README verification notes in sync when commands, fixtures, or supported toolchains change.
 
@@ -53,6 +54,8 @@
 - The preview image outlet is validated before camera setup so missing storyboard wiring leaves capture disabled.
 - The grayscale conversion uses an explicit device-gray color space with one-channel bitmap info before handing frames to OpenCV.
 - BrandCapture rejects non-convex projected quadrilaterals before overlay drawing.
+- Projected corner behavior is executed with portable C++ cases for finite,
+  convex, and minimum-area decisions.
 - `Pods/` is vendored dependency code; do not hand-edit it unless intentionally updating dependencies.
 
 ## Agent workflow

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <limits>
 #import "features.hpp"
+#include "ProjectedCorners.hpp"
 #include "opencv2/core/core.hpp"
 #include "opencv2/features2d/features2d.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -18,7 +19,6 @@ static const int kMinHessian = 400;
 static const int kExpectedCornerCount = 4;
 static const int kMinimumGoodMatches = 4;
 static const double kGoodMatchDistanceMultiplier = 3.0;
-static const double kMinimumProjectedArea = 1.0;
 
 static std::vector<Point2f> emptyCorners()
 {
@@ -197,33 +197,14 @@ vector<Point2f> detect(Mat img_scene)
 
 bool hasValidCorners(const vector<Point2f>& corners)
 {
-    if (corners.size() != kExpectedCornerCount)
-    {
-        return false;
-    }
-
+    std::vector<brandcapture::ProjectedPoint> projectedCorners;
+    projectedCorners.reserve(corners.size());
     for (size_t i = 0; i < corners.size(); i++)
     {
-        if (!std::isfinite(corners[i].x) || !std::isfinite(corners[i].y))
-        {
-            return false;
-        }
+        projectedCorners.push_back(
+            brandcapture::ProjectedPoint(corners[i].x, corners[i].y));
     }
-
-    if (!cv::isContourConvex(corners))
-    {
-        return false;
-    }
-
-    double areaTwice = 0.0;
-    for (size_t i = 0; i < corners.size(); i++)
-    {
-        size_t next = (i + 1) % corners.size();
-        areaTwice += static_cast<double>(corners[i].x) * corners[next].y -
-                     static_cast<double>(corners[next].x) * corners[i].y;
-    }
-
-    return std::fabs(areaTwice) >= 2.0 * kMinimumProjectedArea;
+    return brandcapture::hasValidProjectedCorners(projectedCorners);
 }
 
 
