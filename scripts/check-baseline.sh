@@ -242,12 +242,26 @@ if ! grep -Fq "cv::line(image, corners[3], corners[0]" "$VIEW_CONTROLLER"; then
   exit 1
 fi
 
-process_line=$(grep -Fn -- "- (void)processImage:(cv::Mat&)image" "$VIEW_CONTROLLER" | cut -d: -f1)
-try_line=$(grep -Fn "    try" "$VIEW_CONTROLLER" | cut -d: -f1)
-detect_line=$(grep -Fn "cv::vector<cv::Point2f> corners = detect(image);" "$VIEW_CONTROLLER" | cut -d: -f1)
-overlay_line=$(grep -Fn "cv::line(image, corners[3], corners[0]" "$VIEW_CONTROLLER" | cut -d: -f1)
-catch_line=$(grep -Fn "catch (const cv::Exception&)" "$VIEW_CONTROLLER" | cut -d: -f1)
-next_method_line=$(grep -Fn -- "- (void)didReceiveMemoryWarning" "$VIEW_CONTROLLER" | cut -d: -f1)
+unique_line_number() {
+  pattern=$1
+  description=$2
+  matches=$(grep -Fn -- "$pattern" "$VIEW_CONTROLLER" || true)
+  match_count=$(printf '%s\n' "$matches" | awk 'NF { count++ } END { print count + 0 }')
+
+  if [ "$match_count" -ne 1 ]; then
+    printf '%s\n' "ViewController must contain exactly one $description marker." >&2
+    exit 1
+  fi
+
+  printf '%s\n' "$matches" | cut -d: -f1
+}
+
+process_line=$(unique_line_number "- (void)processImage:(cv::Mat&)image" "processImage")
+try_line=$(unique_line_number "    try" "frame-processing try")
+detect_line=$(unique_line_number "cv::vector<cv::Point2f> corners = detect(image);" "frame detection")
+overlay_line=$(unique_line_number "cv::line(image, corners[3], corners[0]" "final overlay edge")
+catch_line=$(unique_line_number "catch (const cv::Exception&)" "OpenCV catch")
+next_method_line=$(unique_line_number "- (void)didReceiveMemoryWarning" "post-processing method")
 
 if [ "$process_line" -ge "$try_line" ] || [ "$try_line" -ge "$detect_line" ] || \
    [ "$detect_line" -ge "$overlay_line" ] || [ "$overlay_line" -ge "$catch_line" ] || \

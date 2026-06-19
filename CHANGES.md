@@ -6,6 +6,8 @@
   so one rejected frame no longer unwinds through the video delegate callback.
 - Extended the SDK-free baseline and maintenance notes for the fail-closed frame
   processing boundary.
+- Hardened the exception-boundary checker to reject missing or duplicated
+  ordering markers before comparing their source positions.
 
 ## 2026-06-10
 
