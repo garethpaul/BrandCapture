@@ -134,6 +134,12 @@ if ! grep -Fq "sourcecode.cpp.objcpp" "$PROJECT"; then
   exit 1
 fi
 
+if grep -Eq 'GCC_PREFIX_HEADER = "?/Users/' "$PROJECT" ||
+   [ "$(grep -Fc 'GCC_PREFIX_HEADER = "BrandCapture/Brand-Capture-Prefix.pch";' "$PROJECT")" -ne 2 ]; then
+  printf '%s\n' "Xcode prefix header must use the repository-relative BrandCapture prefix header." >&2
+  exit 1
+fi
+
 if ! grep -Fq "BOOL isDetectorReady;" "$VIEW_HEADER"; then
   printf '%s\n' "ViewController must track detector readiness." >&2
   exit 1
@@ -863,8 +869,8 @@ if ! grep -Fq "CocoaPods 1.0.1" "$ROOT_DIR/README.md"; then
   exit 1
 fi
 
-if ! grep -Fq 'This host does not have `xcodebuild` or `pod`' "$ROOT_DIR/README.md"; then
-  printf '%s\n' "README must document local Apple toolchain limitations." >&2
+if ! grep -Fq 'When `xcodebuild` or `pod` is unavailable' "$ROOT_DIR/README.md"; then
+  printf '%s\n' "README must document local Apple toolchain limitations without hard-coding host state." >&2
   exit 1
 fi
 
