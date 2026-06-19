@@ -124,6 +124,7 @@ When the required SDK or runtime is unavailable, use static checks and source re
   and no microphone or location permission copy is declared.
 - Root Makefile checks and the optional Xcode build resolve paths from the
   Makefile location, so `make -f` works outside the checkout directory.
+- The repository-derived Make root cannot be redirected with a caller-supplied ROOT value.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
 - See `CHANGES.md` for the maintenance history.

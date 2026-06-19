@@ -1,5 +1,8 @@
 # BrandCapture Changes
 
+- Protected the repository-derived Make root from command-line overrides so
+  checker and Xcode workspace paths cannot be redirected outside the checkout.
+
 ## 2026-06-14
 
 - Added an exact-commit BrandCapture device verification matrix for permission,

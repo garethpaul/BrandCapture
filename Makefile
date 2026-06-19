@@ -1,7 +1,7 @@
 .PHONY: build check lint test verify
 
 XCODEBUILD ?= xcodebuild
-ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+override ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 lint:
 	$(ROOT)scripts/check-baseline.sh

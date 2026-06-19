@@ -27,6 +27,7 @@ FINITE_MATCH_DISTANCE_PLAN="$ROOT_DIR/docs/plans/2026-06-13-brandcapture-finite-
 CONVEX_CORNERS_PLAN="$ROOT_DIR/docs/plans/2026-06-14-brandcapture-convex-corners.md"
 DEVICE_VERIFICATION_PLAN="$ROOT_DIR/docs/plans/2026-06-14-brandcapture-device-verification-checklist.md"
 CHECKOUT_CREDENTIAL_PLAN="$ROOT_DIR/docs/plans/2026-06-12-checkout-credential-boundary.md"
+MAKE_ROOT_PROTECTION_PLAN="$ROOT_DIR/docs/plans/2026-06-15-brandcapture-make-root-override-protection.md"
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
   printf '%s\n' "CHANGES.md must document repository maintenance." >&2
@@ -64,6 +65,7 @@ for path in \
   "docs/plans/2026-06-13-brandcapture-degenerate-corners.md" \
   "docs/plans/2026-06-14-brandcapture-convex-corners.md" \
   "docs/plans/2026-06-12-checkout-credential-boundary.md" \
+  "docs/plans/2026-06-15-brandcapture-make-root-override-protection.md" \
   ".github/workflows/check.yml" \
   "BrandCapture.xcworkspace/contents.xcworkspacedata" \
   "BrandCapture.xcodeproj/project.pbxproj" \
@@ -826,14 +828,35 @@ if [ ! -f "$ROOT_DIR/Makefile" ]; then
   exit 1
 fi
 
-if ! grep -Fq 'ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))' "$ROOT_DIR/Makefile" || \
+if ! grep -Fq 'override ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))' "$ROOT_DIR/Makefile" || \
    ! grep -Fq '$(ROOT)scripts/check-baseline.sh' "$ROOT_DIR/Makefile"; then
-  printf '%s\n' "Makefile must run the baseline relative to its own repository root." >&2
+  printf '%s\n' "Makefile must protect and run the baseline relative to its own repository root." >&2
+  exit 1
+fi
+
+if [ "$(grep -Ec '^(override[[:space:]]+)?ROOT[[:space:]]*[:?+]?=' "$ROOT_DIR/Makefile")" -ne 1 ]; then
+  printf '%s\n' "Makefile must define exactly one repository-derived ROOT assignment." >&2
   exit 1
 fi
 
 if ! grep -Fq '"$(ROOT)BrandCapture.xcworkspace"' "$ROOT_DIR/Makefile"; then
   printf '%s\n' "Makefile must pass a repository-rooted workspace path to xcodebuild." >&2
+  exit 1
+fi
+
+if [ ! -f "$MAKE_ROOT_PROTECTION_PLAN" ] || \
+   ! grep -Fq "Status: Completed" "$MAKE_ROOT_PROTECTION_PLAN" || \
+   ! grep -Fq 'repository and external-directory `make check` passed' "$MAKE_ROOT_PROTECTION_PLAN" || \
+   ! grep -Fq "hostile BrandCapture Make root mutations were rejected" "$MAKE_ROOT_PROTECTION_PLAN"; then
+  printf '%s\n' "BrandCapture Make root protection plan must record completed verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "cannot be redirected with a caller-supplied ROOT value" "$ROOT_DIR/README.md" || \
+   ! grep -Fq "Make root is protected from command-line overrides" "$ROOT_DIR/SECURITY.md" || \
+   ! grep -Fq "Keep Make verification rooted to the loaded repository Makefile" "$ROOT_DIR/VISION.md" || \
+   ! grep -Fq "Protected the repository-derived Make root from command-line overrides" "$ROOT_DIR/CHANGES.md"; then
+  printf '%s\n' "Repository guidance must document BrandCapture Make root protection." >&2
   exit 1
 fi
 

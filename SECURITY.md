@@ -31,6 +31,8 @@ Helpful reports include:
 - Dependency manifests detected: Podfile, Podfile.lock. Dependency updates should preserve lockfiles when present and avoid introducing packages without a clear maintenance reason.
 - GitHub Actions runs the repository `make check` baseline with a commit-pinned
   checkout action, read-only repository access, and a bounded runtime.
+- The Make root is protected from command-line overrides so checker and Xcode
+  workspace paths cannot be redirected outside the reviewed checkout.
 
 ## Mobile Privacy Notes
 
