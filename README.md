@@ -110,6 +110,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Reference setup clears stale published detector state, stages reference image,
   keypoint, and descriptor state locally, and publishes it only after complete
   OpenCV validation succeeds.
+- Detected corners pass a one-square-pixel projected-area guard before the
+  detector returns them or the camera callback draws an overlay.
 - The camera permission text describes user-started local target-image detection
   and no microphone or location permission copy is declared.
 - Root Makefile checks and the optional Xcode build resolve paths from the

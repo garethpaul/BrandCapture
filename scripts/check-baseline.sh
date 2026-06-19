@@ -22,6 +22,7 @@ CAMERA_INACTIVE_PLAN="$ROOT_DIR/docs/plans/2026-06-10-brandcapture-camera-inacti
 FRAME_EXCEPTION_PLAN="$ROOT_DIR/docs/plans/2026-06-12-brandcapture-frame-exception-containment.md"
 ZERO_DISTANCE_PLAN="$ROOT_DIR/docs/plans/2026-06-13-brandcapture-zero-distance-matches.md"
 REFERENCE_SETUP_PLAN="$ROOT_DIR/docs/plans/2026-06-13-brandcapture-reference-setup.md"
+DEGENERATE_CORNERS_PLAN="$ROOT_DIR/docs/plans/2026-06-13-brandcapture-degenerate-corners.md"
 CHECKOUT_CREDENTIAL_PLAN="$ROOT_DIR/docs/plans/2026-06-12-checkout-credential-boundary.md"
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
@@ -57,6 +58,7 @@ for path in \
   "docs/plans/2026-06-12-brandcapture-frame-exception-containment.md" \
   "docs/plans/2026-06-13-brandcapture-zero-distance-matches.md" \
   "docs/plans/2026-06-13-brandcapture-reference-setup.md" \
+  "docs/plans/2026-06-13-brandcapture-degenerate-corners.md" \
   "docs/plans/2026-06-12-checkout-credential-boundary.md" \
   ".github/workflows/check.yml" \
   "BrandCapture.xcworkspace/contents.xcworkspacedata" \
@@ -435,6 +437,60 @@ if ! grep -Fq "std::isfinite" "$FEATURES"; then
   printf '%s\n' "features.mm must reject non-finite detected corners." >&2
   exit 1
 fi
+
+if [ "$(grep -Fc 'static const double kMinimumProjectedArea = 1.0;' "$FEATURES")" -ne 1 ] || \
+  [ "$(grep -Fc 'double areaTwice = 0.0;' "$FEATURES")" -ne 1 ] || \
+  [ "$(grep -Fc 'size_t next = (i + 1) % corners.size();' "$FEATURES")" -ne 1 ] || \
+  [ "$(grep -Fc 'areaTwice += static_cast<double>(corners[i].x) * corners[next].y -' "$FEATURES")" -ne 1 ] || \
+  [ "$(grep -Fc 'static_cast<double>(corners[next].x) * corners[i].y;' "$FEATURES")" -ne 1 ] || \
+  [ "$(grep -Fc 'return std::fabs(areaTwice) >= 2.0 * kMinimumProjectedArea;' "$FEATURES")" -ne 1 ]; then
+  printf '%s\n' "features.mm must reject projected quadrilaterals below one square pixel." >&2
+  exit 1
+fi
+
+transform_marker="perspectiveTransform( obj_corners, scene_corners, H);"
+geometry_guard_marker="if (!hasValidCorners(scene_corners))"
+corner_return_marker="return scene_corners;"
+if [ "$(grep -Fc "$transform_marker" "$FEATURES")" -ne 1 ] || \
+  [ "$(grep -Fc "$geometry_guard_marker" "$FEATURES")" -ne 1 ] || \
+  [ "$(grep -Fc "$corner_return_marker" "$FEATURES")" -ne 1 ]; then
+  printf '%s\n' "Projected-corner ordering markers must remain unique and present." >&2
+  exit 1
+fi
+
+transform_line=$(grep -nF "$transform_marker" "$FEATURES" | cut -d: -f1)
+geometry_guard_line=$(grep -nF "$geometry_guard_marker" "$FEATURES" | cut -d: -f1)
+corner_return_line=$(grep -nF "$corner_return_marker" "$FEATURES" | cut -d: -f1)
+if [ -z "$transform_line" ] || [ -z "$geometry_guard_line" ] || [ -z "$corner_return_line" ] || \
+  [ "$transform_line" -ge "$geometry_guard_line" ] || [ "$geometry_guard_line" -ge "$corner_return_line" ]; then
+  printf '%s\n' "detect() must validate projected geometry before returning corners." >&2
+  exit 1
+fi
+
+if [ "$(grep -Fc 'if (!hasValidCorners(corners))' "$VIEW_CONTROLLER")" -ne 1 ]; then
+  printf '%s\n' "ViewController must retain corner validation before overlay drawing." >&2
+  exit 1
+fi
+
+if ! grep -Fq "one-square-pixel projected-area guard" "$ROOT_DIR/README.md" || \
+  ! grep -Fq "non-degenerate projected geometry" "$ROOT_DIR/VISION.md" || \
+  ! grep -Fq "degenerate projected quadrilaterals" "$ROOT_DIR/CHANGES.md" || \
+  ! grep -Fq "R1. Four finite projected corners" "$DEGENERATE_CORNERS_PLAN"; then
+  printf '%s\n' "Projected-corner geometry documentation and plan contracts must remain checked in." >&2
+  exit 1
+fi
+
+for geometry_plan_contract in \
+  "status: completed" \
+  "## Status: Completed" \
+  "make verify" \
+  "isolated hostile source mutations were rejected" \
+  "no xcodebuild, OpenCV execution, simulator camera"; do
+  if ! grep -Fq "$geometry_plan_contract" "$DEGENERATE_CORNERS_PLAN"; then
+    printf '%s\n' "Degenerate-corner plan must record completed verification: $geometry_plan_contract" >&2
+    exit 1
+  fi
+done
 
 if ! grep -Fq "exact descriptor matches" "$ROOT_DIR/README.md" || \
    ! grep -Fq "inclusive descriptor-match threshold" "$ROOT_DIR/VISION.md" || \

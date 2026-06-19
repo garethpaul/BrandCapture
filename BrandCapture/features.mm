@@ -17,6 +17,7 @@ static const int kMinHessian = 400;
 static const int kExpectedCornerCount = 4;
 static const int kMinimumGoodMatches = 4;
 static const double kGoodMatchDistanceMultiplier = 3.0;
+static const double kMinimumProjectedArea = 1.0;
 
 static std::vector<Point2f> emptyCorners()
 {
@@ -179,6 +180,9 @@ vector<Point2f> detect(Mat img_scene)
         std::vector<Point2f> scene_corners(kExpectedCornerCount);
         
         perspectiveTransform( obj_corners, scene_corners, H);
+        if (!hasValidCorners(scene_corners)) {
+            return emptyCorners();
+        }
         
         return scene_corners;
         
@@ -202,7 +206,15 @@ bool hasValidCorners(const vector<Point2f>& corners)
         }
     }
 
-    return true;
+    double areaTwice = 0.0;
+    for (size_t i = 0; i < corners.size(); i++)
+    {
+        size_t next = (i + 1) % corners.size();
+        areaTwice += static_cast<double>(corners[i].x) * corners[next].y -
+                     static_cast<double>(corners[next].x) * corners[i].y;
+    }
+
+    return std::fabs(areaTwice) >= 2.0 * kMinimumProjectedArea;
 }
 
 
