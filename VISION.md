@@ -23,6 +23,10 @@ Priority:
 - Keep camera preview wiring validated before capture setup
 - Keep camera capture scoped to an active foreground application lifecycle
 - Reconcile active capture state even when camera ownership is already absent
+- Keep camera authorization and session startup in an app-owned, generation-tagged
+  state machine so delayed callbacks cannot make controls claim stale capture
+- Preserve user-started authorization through the system permission prompt only;
+  genuine backgrounding must cancel the generation before any camera startup
 - Keep image conversion buffer formats explicit before OpenCV processing
 - Keep OpenCV image buffer dimensions tied to underlying CGImage pixels
 - Keep feature detection failure paths explicit before descriptor matching

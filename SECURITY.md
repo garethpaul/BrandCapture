@@ -35,6 +35,10 @@ Helpful reports include:
   workspace paths cannot be redirected outside the reviewed checkout.
 - Lifecycle shutdown is fail-closed so missing camera ownership cannot leave
   capture controls active.
+- Camera permission denial, startup failure, interruption, and runtime error all
+  return app-owned capture state to idle before external camera cleanup.
+- Permission-prompt deactivation is paired with foreground/background lifecycle
+  events so a grant can resume only while foregrounded and never after backgrounding.
 
 ## Mobile Privacy Notes
 

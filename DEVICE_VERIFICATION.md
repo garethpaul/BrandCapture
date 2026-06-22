@@ -34,8 +34,10 @@ cannot be transferred to a different detector implementation.
 
 | Scenario | Expected evidence | Result | Evidence |
 | --- | --- | --- | --- |
-| Camera permission denied | Denial leaves capture disabled and the app usable without collecting frames. | `not run` | `not run` |
-| Camera permission granted | User-started capture opens the preview only while the app is active. | `not run` | `not run` |
+| Camera permission denied | First-prompt denial returns to idle after foregrounding without starting capture. | `not run` | `not run` |
+| Camera permission granted | One Start tap survives the first system prompt and starts the preview only after the app becomes active. | `not run` | `not run` |
+| Background during permission prompt | Entering the background cancels the attempt; foregrounding and a late grant do not auto-start capture. | `not run` | `not run` |
+| Stale permission callback | A callback from an older prompt cannot claim or start a newer authorization attempt. | `not run` | `not run` |
 | Reference setup | A valid synthetic reference publishes image, keypoints, and descriptors atomically. | `not run` | `not run` |
 | Invalid reference setup | Missing image, empty keypoints, or empty descriptors leaves no partial detector state. | `not run` | `not run` |
 | No scene keypoints | Empty live-frame features return no detection or overlay. | `not run` | `not run` |
@@ -47,7 +49,7 @@ cannot be transferred to a different detector implementation.
 | Capture controls | Start, Stop, and toolbar state track detector and camera ownership without conflicting actions. | `not run` | `not run` |
 | Orientation change | Rotation preserves preview alignment or safely suppresses stale overlay geometry. | `not run` | `not run` |
 | Low light and motion blur | Weak frames fail closed without stale overlays, crashes, or runaway processing. | `not run` | `not run` |
-| Background and foreground | Inactivation stops capture and foregrounding requires an owned active capture state. | `not run` | `not run` |
+| Background and foreground | Active capture stops on inactivation; foregrounding never restarts a background-cancelled attempt. | `not run` | `not run` |
 | Sustained capture | A bounded smoke interval remains responsive without stale overlays or unbounded memory growth. | `not run` | `not run` |
 | Process relaunch | Relaunch starts without stale detector, camera, reference, frame, or overlay state. | `not run` | `not run` |
 

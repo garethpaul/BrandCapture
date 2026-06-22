@@ -1,4 +1,4 @@
-.PHONY: build check lint test verify
+.PHONY: build check lint mutation-test test verify
 
 XCODEBUILD ?= xcodebuild
 CXX ?= c++
@@ -9,11 +9,16 @@ lint:
 
 test:
 	@if command -v "$(CXX)" >/dev/null 2>&1; then \
+		CXX="$(CXX)" "$(ROOT)scripts/test-capture-session-state.sh"; \
 		CXX="$(CXX)" "$(ROOT)scripts/test-projected-corners.sh"; \
 		CXX="$(CXX)" "$(ROOT)scripts/test-image-matrix-layout.sh"; \
 	else \
 		echo "C++ compiler not found; skipping portable C++ behavior tests."; \
 	fi
+	"$(ROOT)scripts/test-camera-authorization-integration.sh"
+
+mutation-test:
+	CXX="$(CXX)" "$(ROOT)scripts/test-camera-authorization-mutations.sh"
 
 build: lint
 	@if command -v "$(XCODEBUILD)" >/dev/null 2>&1; then \

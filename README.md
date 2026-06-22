@@ -92,11 +92,15 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - This looks like an Apple platform project or sample. Xcode, Swift, CocoaPods, and deployment target versions may need to match the original project era.
 - Capture controls mirror detector and camera state: Start is disabled while
   capture is active, and Stop remains disabled until capture is active.
-- Camera capture stops when the application resigns active, including app
-  switching, device locking, and interruption transitions that leave the view
-  onscreen.
+- Active or starting capture stops when the application resigns active. During
+  the first system camera-permission prompt, authorization intent waits for the
+  paired foreground return; entering the background still cancels that attempt.
 - A stop request with a missing camera reference still clears active capture state
   and refreshes the controls instead of leaving the UI stuck in capture mode.
+- Camera startup is gated by AVFoundation authorization and remains pending until
+  the current capture session reports that it started; generation-tagged callbacks
+  prevent delayed permission or session events from reactivating stopped capture,
+  including callbacks from an older permission prompt.
 - The capture-control storyboard outlets are wired so the state-sync helper
   reaches the Start, Stop, and toolbar controls.
 - The preview image outlet is validated before camera setup so missing

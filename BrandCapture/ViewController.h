@@ -4,7 +4,6 @@
 @interface ViewController : UIViewController<CvVideoCameraDelegate>
 {
     CvVideoCamera* videoCamera;
-    BOOL isCapturing;
     BOOL isDetectorReady;
     UIImage* capturedFrame;
 }
