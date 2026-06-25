@@ -1,5 +1,19 @@
 # BrandCapture Changes
 
+## 2026-06-25
+
+- Reconciled externally stopped AVFoundation sessions with the OpenCV camera
+  wrapper before allowing capture to restart, with an integration regression check.
+
+## 2026-06-22
+
+- Added an app-owned camera authorization and capture-session state machine that
+  waits for AVFoundation startup proof, rejects stale callbacks, and reconciles
+  permission denial, startup failure, interruption, error, and lifecycle stop.
+- Preserved the first Start intent across the system camera-permission prompt,
+  while cancelling it on genuine backgrounding and rejecting stale prompt results.
+- Added portable transition tests and source integration checks for capture state.
+
 ## 2026-06-17
 
 - Added portable Image matrix layout validation and guarded UIKit export

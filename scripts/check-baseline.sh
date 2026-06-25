@@ -145,11 +145,6 @@ if ! grep -Fq "BOOL isDetectorReady;" "$VIEW_HEADER"; then
   exit 1
 fi
 
-if ! grep -Fq "isCapturing = NO;" "$VIEW_CONTROLLER"; then
-  printf '%s\n' "ViewController must start with capture state inactive." >&2
-  exit 1
-fi
-
 if ! grep -Fq 'BrandCaptureReferenceImageName = @"clipper.jpg"' "$VIEW_CONTROLLER"; then
   printf '%s\n' "ViewController must preserve the target image name." >&2
   exit 1
@@ -157,11 +152,6 @@ fi
 
 if ! grep -Fq "isDetectorReady = setup(BrandCaptureReferenceImageName);" "$VIEW_CONTROLLER"; then
   printf '%s\n' "ViewController must preserve setup readiness state." >&2
-  exit 1
-fi
-
-if ! grep -Fq "if (isCapturing || !isDetectorReady || self.videoCamera == nil)" "$VIEW_CONTROLLER"; then
-  printf '%s\n' "ViewController must guard duplicate starts, failed detector setup, and missing camera state." >&2
   exit 1
 fi
 
@@ -190,8 +180,10 @@ if ! grep -Fq -- "- (void)applicationWillResignActive:(NSNotification *)notifica
   exit 1
 fi
 
-if ! grep -A5 -F -- "- (void)applicationWillResignActive:(NSNotification *)notification" "$VIEW_CONTROLLER" | grep -Fq "[self stopCaptureIfNeeded];"; then
-  printf '%s\n' "Application-inactive handling must reuse centralized camera shutdown." >&2
+if ! grep -Fq "captureState.applicationWillResignActive()" "$VIEW_CONTROLLER" || \
+   ! grep -Fq "captureState.applicationDidBecomeActive()" "$VIEW_CONTROLLER" || \
+   ! grep -Fq "captureState.applicationDidEnterBackground()" "$VIEW_CONTROLLER"; then
+  printf '%s\n' "Application lifecycle handling must distinguish permission prompts from genuine backgrounding." >&2
   exit 1
 fi
 
@@ -235,60 +227,7 @@ if ! grep -Fq "initWithParentView:self.imageView" "$VIEW_CONTROLLER"; then
   exit 1
 fi
 
-if ! grep -Fq "startCaptureButton.enabled = isDetectorReady && !isCapturing;" "$VIEW_CONTROLLER"; then
-  printf '%s\n' "Start button must be disabled while capture is active." >&2
-  exit 1
-fi
-
-if ! grep -Fq "stopCaptureButton.enabled = isDetectorReady && isCapturing;" "$VIEW_CONTROLLER"; then
-  printf '%s\n' "Stop button must stay disabled until capture is active." >&2
-  exit 1
-fi
-
-if grep -Fq "stopCaptureButton.enabled = isDetectorReady;" "$VIEW_CONTROLLER"; then
-  printf '%s\n' "Stop button must not be enabled before capture starts." >&2
-  exit 1
-fi
-
-stop_capture_method=$(awk '
-  /^- \(void\)stopCaptureIfNeeded$/ { capture = 1 }
-  capture && /^- \(void\)updateCaptureControls$/ { exit }
-  capture { print }
-' "$VIEW_CONTROLLER")
-
-for stop_marker in \
-  "if (!isCapturing)" \
-  "return;" \
-  "if (self.videoCamera != nil)" \
-  "[self.videoCamera stop];" \
-  "isCapturing = NO;" \
-  "[self updateCaptureControls];"; do
-  if [ "$(printf '%s\n' "$stop_capture_method" | grep -Fc "$stop_marker")" -ne 1 ]; then
-    printf '%s\n' "ViewController stop state marker must be unique: $stop_marker" >&2
-    exit 1
-  fi
-done
-
-idle_guard_line=$(printf '%s\n' "$stop_capture_method" | grep -nF "if (!isCapturing)" | cut -d: -f1)
-idle_return_line=$(printf '%s\n' "$stop_capture_method" | grep -nF "return;" | cut -d: -f1)
-camera_guard_line=$(printf '%s\n' "$stop_capture_method" | grep -nF "if (self.videoCamera != nil)" | cut -d: -f1)
-camera_stop_line=$(printf '%s\n' "$stop_capture_method" | grep -nF "[self.videoCamera stop];" | cut -d: -f1)
-idle_state_line=$(printf '%s\n' "$stop_capture_method" | grep -nF "isCapturing = NO;" | cut -d: -f1)
-control_refresh_line=$(printf '%s\n' "$stop_capture_method" | grep -nF "[self updateCaptureControls];" | cut -d: -f1)
-idle_guard_close_line=$(printf '%s\n' "$stop_capture_method" | awk -v marker="$idle_return_line" 'NR > marker && /^[[:space:]]*}$/ { print NR; exit }')
-camera_guard_close_line=$(printf '%s\n' "$stop_capture_method" | awk -v marker="$camera_stop_line" 'NR > marker && /^[[:space:]]*}$/ { print NR; exit }')
-if [ "$idle_guard_line" -ge "$idle_return_line" ] || \
-  [ -z "$idle_guard_close_line" ] || \
-  [ "$idle_return_line" -ge "$idle_guard_close_line" ] || \
-  [ "$idle_guard_close_line" -ge "$camera_guard_line" ] || \
-  [ "$camera_guard_line" -ge "$camera_stop_line" ] || \
-  [ -z "$camera_guard_close_line" ] || \
-  [ "$camera_stop_line" -ge "$camera_guard_close_line" ] || \
-  [ "$camera_guard_close_line" -ge "$idle_state_line" ] || \
-  [ "$idle_state_line" -ge "$control_refresh_line" ]; then
-  printf '%s\n' "ViewController must stop an available camera before reconciling active capture state and controls." >&2
-  exit 1
-fi
+"$ROOT_DIR/scripts/test-camera-authorization-integration.sh"
 
 if ! grep -Fq "missing camera reference still clears active capture state" "$ROOT_DIR/README.md" || \
   ! grep -Fq "Reconcile active capture state even when camera ownership is already absent" "$ROOT_DIR/VISION.md" || \
@@ -929,8 +868,9 @@ if ! grep -Fq "camera callback contains OpenCV frame-processing exceptions" "$RO
   exit 1
 fi
 
-if ! grep -Fq "Camera capture stops when the application resigns active" "$ROOT_DIR/README.md"; then
-  printf '%s\n' "README must document the inactive camera lifecycle guard." >&2
+if ! grep -Fq "Active or starting capture stops when the application resigns active" "$ROOT_DIR/README.md" || \
+   ! grep -Fq "entering the background still cancels that attempt" "$ROOT_DIR/README.md"; then
+  printf '%s\n' "README must document prompt resumption and genuine-background cancellation." >&2
   exit 1
 fi
 

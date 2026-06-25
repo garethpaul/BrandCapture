@@ -1,11 +1,31 @@
 #import "ViewController.h"
+#import <AVFoundation/AVFoundation.h>
 #import "features.hpp"
+#include "CaptureSessionState.hpp"
 #include "ImageMatrixLayout.hpp"
 #include <limits>
 
 static NSString * const BrandCaptureReferenceImageName = @"clipper.jpg";
 static const int BrandCaptureDefaultFPS = 40;
 static const int BrandCaptureOverlayThickness = 12;
+
+static brandcapture::CameraAuthorization
+BrandCaptureCameraAuthorization(AVAuthorizationStatus status)
+{
+    switch (status)
+    {
+        case AVAuthorizationStatusAuthorized:
+            return brandcapture::CameraAuthorization::Authorized;
+        case AVAuthorizationStatusDenied:
+            return brandcapture::CameraAuthorization::Denied;
+        case AVAuthorizationStatusRestricted:
+            return brandcapture::CameraAuthorization::Restricted;
+        case AVAuthorizationStatusNotDetermined:
+            return brandcapture::CameraAuthorization::NotDetermined;
+    }
+
+    return brandcapture::CameraAuthorization::Denied;
+}
 
 static BOOL BrandCaptureGetImagePixelSize(UIImage *image, int *cols, int *rows)
 {
@@ -29,10 +49,23 @@ static BOOL BrandCaptureGetImagePixelSize(UIImage *image, int *cols, int *rows)
 }
 
 @interface ViewController ()
+{
+    brandcapture::CaptureSessionState captureState;
+    id captureSessionDidStartObserver;
+    id captureSessionDidStopObserver;
+    id captureSessionInterruptedObserver;
+    id captureSessionRuntimeErrorObserver;
+}
 
 - (void)stopCaptureIfNeeded;
 - (void)updateCaptureControls;
+- (void)requestCameraAuthorizationForGeneration:(unsigned long)generation;
+- (void)startCaptureSessionForGeneration:(unsigned long)generation;
+- (void)addCaptureSessionObserversForGeneration:(unsigned long)generation;
+- (void)removeCaptureSessionObservers;
 - (void)applicationWillResignActive:(NSNotification *)notification;
+- (void)applicationDidBecomeActive:(NSNotification *)notification;
+- (void)applicationDidEnterBackground:(NSNotification *)notification;
 
 @end
 
@@ -48,10 +81,18 @@ static BOOL BrandCaptureGetImagePixelSize(UIImage *image, int *cols, int *rows)
 {
     [super viewDidLoad];
 
-    isCapturing = NO;
+    captureState = brandcapture::CaptureSessionState();
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(applicationWillResignActive:)
                                                  name:UIApplicationWillResignActiveNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(applicationDidBecomeActive:)
+                                                 name:UIApplicationDidBecomeActiveNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(applicationDidEnterBackground:)
+                                                 name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
     if (self.imageView == nil)
     {
@@ -85,14 +126,27 @@ static BOOL BrandCaptureGetImagePixelSize(UIImage *image, int *cols, int *rows)
 
 -(IBAction)startCaptureButtonPressed:(id)sender
 {
-    if (isCapturing || !isDetectorReady || self.videoCamera == nil)
+    (void)sender;
+    NSAssert([NSThread isMainThread], @"Capture state must change on the main thread.");
+    if (!isDetectorReady || self.videoCamera == nil)
     {
         return;
     }
 
-    [self.videoCamera start];
-    isCapturing = YES;
+    AVAuthorizationStatus status =
+        [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    brandcapture::CaptureTransition transition =
+        captureState.beginCapture(BrandCaptureCameraAuthorization(status));
     [self updateCaptureControls];
+
+    if (transition.requestAuthorization)
+    {
+        [self requestCameraAuthorizationForGeneration:transition.generation];
+    }
+    else if (transition.startSession)
+    {
+        [self startCaptureSessionForGeneration:transition.generation];
+    }
 }
 
 -(IBAction)stopCaptureButtonPressed:(id)sender
@@ -145,36 +199,278 @@ static BOOL BrandCaptureGetImagePixelSize(UIImage *image, int *cols, int *rows)
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:UIApplicationWillResignActiveNotification
                                                   object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIApplicationDidBecomeActiveNotification
+                                                  object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIApplicationDidEnterBackgroundNotification
+                                                  object:nil];
     [self stopCaptureIfNeeded];
+    [self removeCaptureSessionObservers];
     self.videoCamera.delegate = nil;
 }
 
 - (void)applicationWillResignActive:(NSNotification *)notification
 {
     (void)notification;
-    [self stopCaptureIfNeeded];
+    NSAssert([NSThread isMainThread], @"Capture state must change on the main thread.");
+    brandcapture::CaptureTransition transition =
+        captureState.applicationWillResignActive();
+    if (transition.refreshControls)
+    {
+        [self removeCaptureSessionObservers];
+        [self updateCaptureControls];
+    }
+    if (transition.stopSession && self.videoCamera != nil)
+    {
+        [self.videoCamera stop];
+    }
+}
+
+- (void)applicationDidBecomeActive:(NSNotification *)notification
+{
+    (void)notification;
+    NSAssert([NSThread isMainThread], @"Capture state must change on the main thread.");
+    brandcapture::CaptureTransition transition =
+        captureState.applicationDidBecomeActive();
+    if (transition.refreshControls)
+    {
+        [self updateCaptureControls];
+    }
+    if (transition.startSession)
+    {
+        [self startCaptureSessionForGeneration:transition.generation];
+    }
+}
+
+- (void)applicationDidEnterBackground:(NSNotification *)notification
+{
+    (void)notification;
+    NSAssert([NSThread isMainThread], @"Capture state must change on the main thread.");
+    brandcapture::CaptureTransition transition =
+        captureState.applicationDidEnterBackground();
+    [self removeCaptureSessionObservers];
+    if (transition.refreshControls)
+    {
+        [self updateCaptureControls];
+    }
+    if (transition.stopSession && self.videoCamera != nil)
+    {
+        [self.videoCamera stop];
+    }
 }
 
 - (void)stopCaptureIfNeeded
 {
-    if (!isCapturing)
-    {
-        return;
-    }
+    NSAssert([NSThread isMainThread], @"Capture state must change on the main thread.");
+    brandcapture::CaptureTransition transition = captureState.stopForLifecycle();
+    [self removeCaptureSessionObservers];
+    [self updateCaptureControls];
 
-    if (self.videoCamera != nil)
+    if (transition.stopSession && self.videoCamera != nil)
     {
         [self.videoCamera stop];
     }
-
-    isCapturing = NO;
-    [self updateCaptureControls];
 }
 
 - (void)updateCaptureControls
 {
-    startCaptureButton.enabled = isDetectorReady && !isCapturing;
-    stopCaptureButton.enabled = isDetectorReady && isCapturing;
+    NSAssert([NSThread isMainThread], @"Capture controls must change on the main thread.");
+    brandcapture::CaptureControls controls = captureState.controls(isDetectorReady);
+    startCaptureButton.enabled = controls.startEnabled;
+    stopCaptureButton.enabled = controls.stopEnabled;
+}
+
+- (void)requestCameraAuthorizationForGeneration:(unsigned long)generation
+{
+    __weak ViewController *weakSelf = self;
+    [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo
+                             completionHandler:^(BOOL granted) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            ViewController *strongSelf = weakSelf;
+            if (strongSelf == nil)
+            {
+                return;
+            }
+
+            brandcapture::CaptureTransition transition =
+                strongSelf->captureState.resolveAuthorization(generation, granted);
+            if (!transition.refreshControls)
+            {
+                return;
+            }
+
+            [strongSelf updateCaptureControls];
+            if (transition.startSession)
+            {
+                [strongSelf startCaptureSessionForGeneration:transition.generation];
+            }
+        });
+    }];
+}
+
+- (void)startCaptureSessionForGeneration:(unsigned long)generation
+{
+    NSAssert([NSThread isMainThread], @"Capture state must change on the main thread.");
+    [self removeCaptureSessionObservers];
+    [self addCaptureSessionObserversForGeneration:generation];
+
+    BOOL startRaisedException = NO;
+    @try
+    {
+        [self.videoCamera start];
+    }
+    @catch (NSException *exception)
+    {
+        (void)exception;
+        startRaisedException = YES;
+    }
+
+    AVCaptureSession *session = self.videoCamera.captureSession;
+    if (startRaisedException || session == nil ||
+        !self.videoCamera.captureSessionLoaded || !session.isRunning)
+    {
+        brandcapture::CaptureTransition transition =
+            captureState.sessionStartupFailed(generation);
+        if (!transition.refreshControls)
+        {
+            return;
+        }
+
+        [self removeCaptureSessionObservers];
+        [self updateCaptureControls];
+        if (transition.stopSession && self.videoCamera != nil)
+        {
+            [self.videoCamera stop];
+        }
+    }
+}
+
+- (void)addCaptureSessionObserversForGeneration:(unsigned long)generation
+{
+    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+    NSOperationQueue *mainQueue = [NSOperationQueue mainQueue];
+    __weak ViewController *weakSelf = self;
+
+    captureSessionDidStartObserver =
+        [center addObserverForName:AVCaptureSessionDidStartRunningNotification
+                           object:nil
+                            queue:mainQueue
+                       usingBlock:^(NSNotification *notification) {
+        ViewController *strongSelf = weakSelf;
+        if (strongSelf == nil ||
+            notification.object != strongSelf.videoCamera.captureSession)
+        {
+            return;
+        }
+
+        brandcapture::CaptureTransition transition =
+            strongSelf->captureState.sessionDidStart(generation);
+        if (transition.refreshControls)
+        {
+            [strongSelf updateCaptureControls];
+        }
+    }];
+
+    captureSessionDidStopObserver =
+        [center addObserverForName:AVCaptureSessionDidStopRunningNotification
+                           object:nil
+                            queue:mainQueue
+                       usingBlock:^(NSNotification *notification) {
+        ViewController *strongSelf = weakSelf;
+        if (strongSelf == nil ||
+            notification.object != strongSelf.videoCamera.captureSession)
+        {
+            return;
+        }
+
+        brandcapture::CaptureTransition transition =
+            strongSelf->captureState.sessionDidStop(generation);
+        if (transition.refreshControls)
+        {
+            [strongSelf removeCaptureSessionObservers];
+            [strongSelf updateCaptureControls];
+            if (strongSelf.videoCamera != nil)
+            {
+                [strongSelf.videoCamera stop];
+            }
+        }
+    }];
+
+    captureSessionInterruptedObserver =
+        [center addObserverForName:AVCaptureSessionWasInterruptedNotification
+                           object:nil
+                            queue:mainQueue
+                       usingBlock:^(NSNotification *notification) {
+        ViewController *strongSelf = weakSelf;
+        if (strongSelf == nil ||
+            notification.object != strongSelf.videoCamera.captureSession)
+        {
+            return;
+        }
+
+        brandcapture::CaptureTransition transition =
+            strongSelf->captureState.sessionInterrupted(generation);
+        if (transition.refreshControls)
+        {
+            [strongSelf removeCaptureSessionObservers];
+            [strongSelf updateCaptureControls];
+            if (transition.stopSession && strongSelf.videoCamera != nil)
+            {
+                [strongSelf.videoCamera stop];
+            }
+        }
+    }];
+
+    captureSessionRuntimeErrorObserver =
+        [center addObserverForName:AVCaptureSessionRuntimeErrorNotification
+                           object:nil
+                            queue:mainQueue
+                       usingBlock:^(NSNotification *notification) {
+        ViewController *strongSelf = weakSelf;
+        if (strongSelf == nil ||
+            notification.object != strongSelf.videoCamera.captureSession)
+        {
+            return;
+        }
+
+        brandcapture::CaptureTransition transition =
+            strongSelf->captureState.sessionRuntimeError(generation);
+        if (transition.refreshControls)
+        {
+            [strongSelf removeCaptureSessionObservers];
+            [strongSelf updateCaptureControls];
+            if (transition.stopSession && strongSelf.videoCamera != nil)
+            {
+                [strongSelf.videoCamera stop];
+            }
+        }
+    }];
+}
+
+- (void)removeCaptureSessionObservers
+{
+    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+    if (captureSessionDidStartObserver != nil)
+    {
+        [center removeObserver:captureSessionDidStartObserver];
+        captureSessionDidStartObserver = nil;
+    }
+    if (captureSessionDidStopObserver != nil)
+    {
+        [center removeObserver:captureSessionDidStopObserver];
+        captureSessionDidStopObserver = nil;
+    }
+    if (captureSessionInterruptedObserver != nil)
+    {
+        [center removeObserver:captureSessionInterruptedObserver];
+        captureSessionInterruptedObserver = nil;
+    }
+    if (captureSessionRuntimeErrorObserver != nil)
+    {
+        [center removeObserver:captureSessionRuntimeErrorObserver];
+        captureSessionRuntimeErrorObserver = nil;
+    }
 }
 
 - (cv::Mat)cvMatFromUIImage:(UIImage *)image
