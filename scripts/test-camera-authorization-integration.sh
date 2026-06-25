@@ -103,4 +103,20 @@ if [ -z "$state_stop_line" ] || [ -z "$camera_stop_line" ] || \
   exit 1
 fi
 
+session_did_stop_observer=$(awk '
+  /captureSessionDidStopObserver =/ { capture = 1 }
+  capture && /captureSessionInterruptedObserver =/ { exit }
+  capture { print }
+' "$SOURCE")
+
+state_reconcile_line=$(printf '%s\n' "$session_did_stop_observer" | grep -nF 'captureState.sessionDidStop(generation)' | cut -d: -f1)
+observer_cleanup_line=$(printf '%s\n' "$session_did_stop_observer" | grep -nF '[strongSelf removeCaptureSessionObservers];' | cut -d: -f1)
+camera_cleanup_line=$(printf '%s\n' "$session_did_stop_observer" | grep -nF '[strongSelf.videoCamera stop];' | cut -d: -f1)
+if [ -z "$state_reconcile_line" ] || [ -z "$observer_cleanup_line" ] || [ -z "$camera_cleanup_line" ] || \
+  [ "$state_reconcile_line" -ge "$observer_cleanup_line" ] || \
+  [ "$observer_cleanup_line" -ge "$camera_cleanup_line" ]; then
+  printf '%s\n' "External session stops must reconcile state, remove observers, then clean up OpenCV." >&2
+  exit 1
+fi
+
 printf '%s\n' "Camera authorization integration checks passed"

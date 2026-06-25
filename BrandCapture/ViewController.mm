@@ -390,6 +390,10 @@ static BOOL BrandCaptureGetImagePixelSize(UIImage *image, int *cols, int *rows)
         {
             [strongSelf removeCaptureSessionObservers];
             [strongSelf updateCaptureControls];
+            if (strongSelf.videoCamera != nil)
+            {
+                [strongSelf.videoCamera stop];
+            }
         }
     }];
 

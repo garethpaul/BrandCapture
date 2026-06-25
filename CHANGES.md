@@ -1,5 +1,10 @@
 # BrandCapture Changes
 
+## 2026-06-25
+
+- Reconciled externally stopped AVFoundation sessions with the OpenCV camera
+  wrapper before allowing capture to restart, with an integration regression check.
+
 ## 2026-06-22
 
 - Added an app-owned camera authorization and capture-session state machine that
