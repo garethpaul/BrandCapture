@@ -58,6 +58,8 @@
   convex, and minimum-area decisions.
 - Image matrix layout behavior is executed with portable C++ cases; UIKit
   export supports only tightly packed 8-bit grayscale and four-channel Mats.
+- UIImage conversion catches OpenCV allocation failures before creating Core
+  Graphics bitmap contexts for color or grayscale buffers.
 - `Pods/` is vendored dependency code; do not hand-edit it unless intentionally updating dependencies.
 
 ## Agent workflow

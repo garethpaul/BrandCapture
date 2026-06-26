@@ -54,6 +54,8 @@ Projected corner behavior executes without UIKit or OpenCV linkage and covers
 non-finite, crossing, collinear, duplicate, and undersized geometry.
 Image matrix layout behavior executes without UIKit and rejects unsupported or
 inconsistent byte layouts before Core Graphics receives the buffer.
+UIImage conversion catches OpenCV allocation failures before Core Graphics
+receives either a color or grayscale destination buffer.
 
 Dependency updates should come from trusted package managers and should keep lockfiles in sync when lockfiles exist. Do not commit credentials, private keys, tokens, generated secrets, or machine-local configuration. If a vulnerability depends on a compromised package, typosquatting risk, insecure transitive dependency, or unsafe build step, include the package name, affected version, and the path through which it is used.
 

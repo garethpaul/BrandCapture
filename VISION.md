@@ -29,6 +29,7 @@ Priority:
   genuine backgrounding must cancel the generation before any camera startup
 - Keep image conversion buffer formats explicit before OpenCV processing
 - Keep OpenCV image buffer dimensions tied to underlying CGImage pixels
+- UIImage conversion catches OpenCV allocation failures before bitmap-context creation
 - Keep feature detection failure paths explicit before descriptor matching
 - Keep atomic reference-detector setup fail-closed before camera matching
 - Keep the descriptor filter's inclusive descriptor-match threshold explicit
