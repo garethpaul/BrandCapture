@@ -1,7 +1,7 @@
 ---
 title: BrandCapture Legacy Build and Camera Guide
 type: documentation
-status: pending_hosted_verification
+status: completed
 date: 2026-06-25
 owner: repository maintainers
 ---
@@ -82,4 +82,4 @@ plan state, and local verification nonclaims in `make check`.
   facts and evidence boundaries, device prerequisites, roadmap state,
   changelog evidence, and plan status and runtime nonclaims.
 - `xcodebuild` was unavailable on Linux. No Xcode build, CocoaPods install, simulator launch, physical camera, or live overlay was executed.
-- Exact-head hosted checks remain pending.
+- Exact-head hosted Check and CodeQL passed.
