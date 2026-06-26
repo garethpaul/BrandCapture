@@ -1,5 +1,13 @@
 # BrandCapture Changes
 
+## 2026-06-26
+
+- UIImage conversion catches OpenCV allocation failures through one shared Mat
+  factory before color or grayscale Core Graphics context creation.
+- Added source contracts for both conversion paths and exception classes.
+- Repository and external-directory `make check`, shell syntax, diff checks,
+  and two isolated allocation mutations passed; Xcode remains unavailable.
+
 ## 2026-06-25
 
 - Added exact legacy build and manual camera verification guidance, clarified

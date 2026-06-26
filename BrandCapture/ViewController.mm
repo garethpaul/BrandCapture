@@ -4,6 +4,7 @@
 #include "CaptureSessionState.hpp"
 #include "ImageMatrixLayout.hpp"
 #include <limits>
+#include <new>
 
 static NSString * const BrandCaptureReferenceImageName = @"clipper.jpg";
 static const int BrandCaptureDefaultFPS = 40;
@@ -46,6 +47,22 @@ static BOOL BrandCaptureGetImagePixelSize(UIImage *image, int *cols, int *rows)
     *cols = static_cast<int>(pixelWidth);
     *rows = static_cast<int>(pixelHeight);
     return YES;
+}
+
+static cv::Mat BrandCaptureCreateImageMat(int rows, int cols, int type)
+{
+    try
+    {
+        return cv::Mat(rows, cols, type);
+    }
+    catch (const cv::Exception&)
+    {
+        return cv::Mat();
+    }
+    catch (const std::bad_alloc&)
+    {
+        return cv::Mat();
+    }
 }
 
 @interface ViewController ()
@@ -493,7 +510,11 @@ static BOOL BrandCaptureGetImagePixelSize(UIImage *image, int *cols, int *rows)
         return cv::Mat();
     }
     
-    cv::Mat cvMat(rows, cols, CV_8UC4); // 8 bits per component, 4 channels (color channels + alpha)
+    cv::Mat cvMat = BrandCaptureCreateImageMat(rows, cols, CV_8UC4);
+    if (cvMat.empty())
+    {
+        return cv::Mat();
+    }
     
     CGContextRef contextRef = CGBitmapContextCreate(cvMat.data,                 // Pointer to  data
                                                     cols,                       // Width of bitmap
@@ -536,7 +557,12 @@ static BOOL BrandCaptureGetImagePixelSize(UIImage *image, int *cols, int *rows)
         return cv::Mat();
     }
     
-    cv::Mat cvMat(rows, cols, CV_8UC1); // 8 bits per component, 1 channels
+    cv::Mat cvMat = BrandCaptureCreateImageMat(rows, cols, CV_8UC1);
+    if (cvMat.empty())
+    {
+        CGColorSpaceRelease(colorSpace);
+        return cv::Mat();
+    }
     
     CGContextRef contextRef = CGBitmapContextCreate(cvMat.data,                 // Pointer to data
                                                     cols,                       // Width of bitmap

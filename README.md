@@ -140,6 +140,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   and non-contiguous Mats are cloned before UIKit byte export.
 - UIImage conversions use CGImage pixel dimensions instead of point-based image
   sizes when allocating OpenCV buffers.
+- UIImage conversion catches OpenCV allocation failures and returns an empty
+  Mat before either color or grayscale Core Graphics context creation.
 - The desktop OpenCV sample stays out of the iOS target sources while remaining
   in the project navigator for historical review.
 - The camera callback contains OpenCV frame-processing exceptions so an invalid

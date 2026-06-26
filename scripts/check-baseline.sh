@@ -37,6 +37,7 @@ MAKE_ROOT_PROTECTION_PLAN="$ROOT_DIR/docs/plans/2026-06-15-brandcapture-make-roo
 STOP_STATE_PLAN="$ROOT_DIR/docs/plans/2026-06-15-brandcapture-stop-state-reconciliation.md"
 PROJECTED_CORNERS_PLAN="$ROOT_DIR/docs/plans/2026-06-16-brandcapture-projected-corner-tests.md"
 IMAGE_MATRIX_LAYOUT_PLAN="$ROOT_DIR/docs/plans/2026-06-17-brandcapture-image-matrix-layout.md"
+IMAGE_MAT_ALLOCATION_PLAN="$ROOT_DIR/docs/plans/2026-06-26-brandcapture-image-mat-allocation.md"
 BUILD_CAMERA_GUIDE_PLAN="$ROOT_DIR/docs/plans/2026-06-25-brandcapture-build-camera-guide.md"
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
@@ -79,6 +80,7 @@ for path in \
   "docs/plans/2026-06-15-brandcapture-stop-state-reconciliation.md" \
   "docs/plans/2026-06-16-brandcapture-projected-corner-tests.md" \
   "docs/plans/2026-06-17-brandcapture-image-matrix-layout.md" \
+  "docs/plans/2026-06-26-brandcapture-image-mat-allocation.md" \
   "docs/plans/2026-06-25-brandcapture-build-camera-guide.md" \
   ".github/workflows/check.yml" \
   "BrandCapture.xcworkspace/contents.xcworkspacedata" \
@@ -1005,6 +1007,35 @@ if ! grep -Fq '#include "ImageMatrixLayout.hpp"' "$VIEW_CONTROLLER" || \
   printf '%s\n' "UIImage conversion must enforce the portable matrix layout before export." >&2
   exit 1
 fi
+
+for image_mat_allocation_contract in \
+  'static cv::Mat BrandCaptureCreateImageMat(int rows, int cols, int type)' \
+  'catch (const cv::Exception&)' \
+  'catch (const std::bad_alloc&)' \
+  'BrandCaptureCreateImageMat(rows, cols, CV_8UC4)' \
+  'BrandCaptureCreateImageMat(rows, cols, CV_8UC1)'; do
+  if ! grep -Fq "$image_mat_allocation_contract" "$VIEW_CONTROLLER"; then
+    printf '%s\n' "UIImage conversion must fail closed around OpenCV allocation: $image_mat_allocation_contract" >&2
+    exit 1
+  fi
+done
+if [ "$(grep -Fc 'BrandCaptureCreateImageMat(rows, cols,' "$VIEW_CONTROLLER")" -ne 2 ]; then
+  printf '%s\n' "Both UIImage conversion paths must use the shared OpenCV allocation boundary." >&2
+  exit 1
+fi
+if ! grep -Fq 'Status: Completed' "$IMAGE_MAT_ALLOCATION_PLAN" || \
+   ! grep -Fq 'make check' "$IMAGE_MAT_ALLOCATION_PLAN" || \
+   ! grep -Fq 'hostile mutations' "$IMAGE_MAT_ALLOCATION_PLAN" || \
+   ! grep -Fq 'xcodebuild remains unavailable' "$IMAGE_MAT_ALLOCATION_PLAN"; then
+  printf '%s\n' "Image Mat allocation plan must record completed and truthful verification." >&2
+  exit 1
+fi
+for image_mat_allocation_doc in AGENTS.md README.md SECURITY.md VISION.md CHANGES.md; do
+  if ! grep -Fq 'UIImage conversion catches OpenCV allocation failures' "$ROOT_DIR/$image_mat_allocation_doc"; then
+    printf '%s\n' "$image_mat_allocation_doc must document fail-closed OpenCV image allocation." >&2
+    exit 1
+  fi
+done
 
 for layout_case in \
   '"grayscale"' \
