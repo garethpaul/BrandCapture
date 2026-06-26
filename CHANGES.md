@@ -7,6 +7,10 @@
 - Added source contracts for both conversion paths and exception classes.
 - Repository and external-directory `make check`, shell syntax, diff checks,
   and two isolated allocation mutations passed; Xcode remains unavailable.
+- Exact-head Check runs `28251597499` and `28251599017` passed in 8 seconds;
+  CodeQL run `28251598282` passed Actions and C/C++ analysis.
+- Codex review was blocked before analysis by repeated OpenAI API HTTP 401
+  failures; immutable exact-head manual review found no actionable findings.
 
 ## 2026-06-25
 

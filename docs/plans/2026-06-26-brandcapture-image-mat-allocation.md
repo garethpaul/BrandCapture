@@ -24,3 +24,7 @@ conversion through it before creating bitmap contexts.
 - `xcodebuild remains unavailable` on the Linux maintenance host.
 - Repository and external-directory `make check`, shell syntax, and diff checks passed.
 - Two isolated hostile mutations failed for the intended reason.
+- Exact-head Check runs `28251597499` and `28251599017` passed; CodeQL run
+  `28251598282` passed Actions and C/C++ analysis.
+- Codex review failed before analysis with OpenAI API HTTP 401; immutable
+  exact-head manual review found no actionable findings.
