@@ -18,6 +18,13 @@ cannot be transferred to a different detector implementation.
   and follow-up for every result other than `pass`.
 - Do not convert `not run` into passing evidence.
 
+## Build and Fixture Prerequisites
+
+- Build `BrandCapture.xcworkspace` from the same exact commit recorded below, preserving OpenCV 2.4.9 and the locked CocoaPods graph.
+- Use the bundled `BrandCapture/clipper.jpg` only as a controlled synthetic reference or replace it through a separately reviewed asset-and-code change.
+- A simulator can provide build, launch, storyboard, and control-state evidence only; simulator-only results cannot pass camera, permission, live-frame, overlay, orientation, or sustained-capture rows.
+- Use a physical iOS device for camera rows and keep people, addresses, customer assets, account data, and private surroundings out of the scene.
+
 ## Run Identity
 
 | Field | Value |

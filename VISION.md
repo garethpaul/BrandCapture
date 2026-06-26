@@ -51,10 +51,8 @@ Priority:
 
 Next priorities:
 
-- Add build and manual camera verification details to the README
 - Modernize OpenCV and iOS toolchain assumptions in a dedicated pass
 - Add safer failure handling when feature detection cannot produce corners
-- Clarify target-image configuration for new brand examples
 - Execute the device verification matrix with synthetic references and
   privacy-safe permission, geometry, overlay, lifecycle, and sustained-use evidence
 - Keep Image matrix layout validation in the portable gate so native image
