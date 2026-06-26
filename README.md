@@ -50,6 +50,35 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 
 - Open `BrandCapture.xcworkspace` in Xcode, choose the `BrandCapture` scheme, and run it on the matching simulator/device.
 
+## Legacy Build and Camera Verification
+
+Treat the checked-in project metadata as a historical compatibility contract,
+not a claim that current Apple tooling can build it unchanged. The Xcode project
+declares Xcode 6.3 compatibility, the app target keeps an iOS deployment target
+8.0, `Podfile.lock` records CocoaPods 1.0.1, and the dependency graph pins OpenCV
+2.4.9. Run `pod install` without regenerating the lockfile, then open
+`BrandCapture.xcworkspace` and build the `BrandCapture` scheme from the same
+exact commit used for verification.
+
+The bundled detector reference is `BrandCapture/clipper.jpg`, selected by
+`BrandCaptureReferenceImageName` in `BrandCapture/ViewController.mm`. A new
+brand example must update the bundled asset, project membership, the constant,
+and privacy-safe verification fixture together; replacing only the file name or
+only the image leaves the detector contract ambiguous.
+
+Use a simulator only for build, launch, storyboard, and capture-control smoke
+checks. The simulator cannot provide camera evidence for permission, live frame
+processing, target detection, overlay geometry, orientation, or sustained
+capture. Those rows require a physical iOS device, a controlled synthetic copy
+of the reference image, and the exact-commit matrix in
+[`DEVICE_VERIFICATION.md`](DEVICE_VERIFICATION.md).
+
+On a physical device, exercise permission denial and grant, start and stop
+controls, valid and missing reference setup, background/foreground transitions,
+weak frames, valid overlay alignment, rotation, and bounded sustained capture.
+Do not store or upload camera frames, include people or private surroundings,
+or treat a successful build as camera or overlay evidence.
+
 ## Testing and Verification
 
 Run the SDK-free source baseline check first:

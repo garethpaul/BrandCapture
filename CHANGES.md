@@ -2,6 +2,9 @@
 
 ## 2026-06-25
 
+- Added exact legacy build and manual camera verification guidance, clarified
+  bundled `clipper.jpg` reference ownership, and separated simulator smoke
+  checks from physical-device camera and overlay evidence.
 - Reconciled externally stopped AVFoundation sessions with the OpenCV camera
   wrapper before allowing capture to restart, with an integration regression check.
 

@@ -37,6 +37,7 @@ MAKE_ROOT_PROTECTION_PLAN="$ROOT_DIR/docs/plans/2026-06-15-brandcapture-make-roo
 STOP_STATE_PLAN="$ROOT_DIR/docs/plans/2026-06-15-brandcapture-stop-state-reconciliation.md"
 PROJECTED_CORNERS_PLAN="$ROOT_DIR/docs/plans/2026-06-16-brandcapture-projected-corner-tests.md"
 IMAGE_MATRIX_LAYOUT_PLAN="$ROOT_DIR/docs/plans/2026-06-17-brandcapture-image-matrix-layout.md"
+BUILD_CAMERA_GUIDE_PLAN="$ROOT_DIR/docs/plans/2026-06-25-brandcapture-build-camera-guide.md"
 
 if [ ! -f "$ROOT_DIR/CHANGES.md" ]; then
   printf '%s\n' "CHANGES.md must document repository maintenance." >&2
@@ -78,6 +79,7 @@ for path in \
   "docs/plans/2026-06-15-brandcapture-stop-state-reconciliation.md" \
   "docs/plans/2026-06-16-brandcapture-projected-corner-tests.md" \
   "docs/plans/2026-06-17-brandcapture-image-matrix-layout.md" \
+  "docs/plans/2026-06-25-brandcapture-build-camera-guide.md" \
   ".github/workflows/check.yml" \
   "BrandCapture.xcworkspace/contents.xcworkspacedata" \
   "BrandCapture.xcodeproj/project.pbxproj" \
@@ -97,6 +99,69 @@ for path in \
   "Podfile" \
   "Podfile.lock"; do
   require_file "$path"
+done
+
+for device_guide_contract in \
+  "## Build and Fixture Prerequisites" \
+  "BrandCapture/clipper.jpg" \
+  "simulator-only results cannot pass camera" \
+  "same exact commit"; do
+  if ! grep -Fq "$device_guide_contract" "$ROOT_DIR/DEVICE_VERIFICATION.md"; then
+    printf '%s\n' "Device matrix must retain build and fixture prerequisite: $device_guide_contract" >&2
+    exit 1
+  fi
+done
+
+for completed_priority in \
+  "Add build and manual camera verification details to the README" \
+  "Clarify target-image configuration for new brand examples"; do
+  if grep -Fq "$completed_priority" "$ROOT_DIR/VISION.md"; then
+    printf '%s\n' "VISION must not retain completed priority: $completed_priority" >&2
+    exit 1
+  fi
+done
+
+if ! grep -Fq "legacy build and manual camera verification" "$ROOT_DIR/CHANGES.md"; then
+  printf '%s\n' "CHANGES.md must record the legacy build and manual camera verification guide." >&2
+  exit 1
+fi
+
+build_camera_guide_status=$(sed -n 's/^status: //p' "$BUILD_CAMERA_GUIDE_PLAN")
+case "$build_camera_guide_status" in
+  pending_hosted_verification)
+    if ! grep -Fq "Exact-head hosted checks remain pending." "$BUILD_CAMERA_GUIDE_PLAN"; then
+      printf '%s\n' "Pending build/camera guide must record pending hosted checks." >&2
+      exit 1
+    fi
+    ;;
+  completed)
+    for guide_evidence in \
+      "Exact-head hosted Check and CodeQL passed." \
+      "isolated documentation mutations were rejected"; do
+      if ! grep -Fq "$guide_evidence" "$BUILD_CAMERA_GUIDE_PLAN"; then
+        printf '%s\n' "Completed build/camera guide must retain evidence: $guide_evidence" >&2
+        exit 1
+      fi
+    done
+    ;;
+  *)
+    printf '%s\n' "Build/camera guide must be pending hosted verification or completed." >&2
+    exit 1
+    ;;
+esac
+
+for guide_contract in \
+  "OpenCV 2.4.9" \
+  "CocoaPods 1.0.1" \
+  "Xcode 6.3" \
+  "iOS deployment target 8.0" \
+  "BrandCapture/clipper.jpg" \
+  "make check" \
+  "No Xcode build, CocoaPods install, simulator launch, physical camera, or live overlay was executed"; do
+  if ! grep -Fq "$guide_contract" "$BUILD_CAMERA_GUIDE_PLAN"; then
+    printf '%s\n' "Build/camera guide must retain local evidence: $guide_contract" >&2
+    exit 1
+  fi
 done
 
 if git -C "$ROOT_DIR" ls-files 'BrandCapture/ViewController.m' | grep -q .; then
@@ -807,6 +872,18 @@ if ! grep -Fq "CocoaPods 1.0.1" "$ROOT_DIR/README.md"; then
   printf '%s\n' "README must document CocoaPods lockfile provenance." >&2
   exit 1
 fi
+
+for build_guide_contract in \
+  "## Legacy Build and Camera Verification" \
+  "Xcode 6.3" \
+  "clipper.jpg" \
+  "physical iOS device" \
+  "simulator cannot provide camera evidence"; do
+  if ! grep -Fq "$build_guide_contract" "$ROOT_DIR/README.md"; then
+    printf '%s\n' "README must retain legacy build and camera guidance: $build_guide_contract" >&2
+    exit 1
+  fi
+done
 
 if ! grep -Fq 'When `xcodebuild` or `pod` is unavailable' "$ROOT_DIR/README.md"; then
   printf '%s\n' "README must document local Apple toolchain limitations without hard-coding host state." >&2
