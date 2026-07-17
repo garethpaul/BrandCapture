@@ -968,6 +968,15 @@ if ! grep -Fq 'override ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))' 
   exit 1
 fi
 
+for chained_suite in \
+  'scripts/test-capture-session-state.sh" && \' \
+  'scripts/test-projected-corners.sh" && \'; do
+  if [ "$(grep -Fc "$chained_suite" "$ROOT_DIR/Makefile")" -ne 1 ]; then
+    printf '%s\n' "Makefile must && -chain each portable C++ suite so an earlier failure fails make test: $chained_suite" >&2
+    exit 1
+  fi
+done
+
 if ! grep -Fq "status: completed" "$PROJECTED_CORNERS_PLAN" || \
    ! grep -Fq "make check" "$PROJECTED_CORNERS_PLAN" || \
    ! grep -Fq "external working directory" "$PROJECTED_CORNERS_PLAN" || \
