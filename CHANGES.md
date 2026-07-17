@@ -1,5 +1,23 @@
 # BrandCapture Changes
 
+## 2026-07-17
+
+- `make test` now `&&`-chains the three portable C++ behavior runners so a
+  failure in any position fails the gate. Previously the `;`-separated list
+  exited with the status of only its last command, so
+  `test-capture-session-state.sh` and `test-projected-corners.sh` printed
+  assertion failures that were then discarded.
+- Wired the previously orphaned `mutation-test` target into `verify`; its 15
+  camera-authorization mutations all pass, but nothing ever invoked it.
+- Added `scripts/test-make-test-failure-propagation.sh` and the
+  `gate-propagation-test` target, which plant a real behavioral defect behind
+  each runner in turn and require both a non-zero `make test` status and the
+  runner's own diagnostic.
+- Measured before the fix: a 100x widening of the projected-corner area bound
+  and a four-to-five corner-count change both passed `make check` at exit 0
+  while the live tests printed failures; a `#error` making a header
+  uncompilable also passed at exit 0.
+
 ## 2026-06-26
 
 - UIImage conversion catches OpenCV allocation failures through one shared Mat
