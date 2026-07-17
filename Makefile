@@ -9,8 +9,8 @@ lint:
 
 test:
 	@if command -v "$(CXX)" >/dev/null 2>&1; then \
-		CXX="$(CXX)" "$(ROOT)scripts/test-capture-session-state.sh"; \
-		CXX="$(CXX)" "$(ROOT)scripts/test-projected-corners.sh"; \
+		CXX="$(CXX)" "$(ROOT)scripts/test-capture-session-state.sh" && \
+		CXX="$(CXX)" "$(ROOT)scripts/test-projected-corners.sh" && \
 		CXX="$(CXX)" "$(ROOT)scripts/test-image-matrix-layout.sh"; \
 	else \
 		echo "C++ compiler not found; skipping portable C++ behavior tests."; \
